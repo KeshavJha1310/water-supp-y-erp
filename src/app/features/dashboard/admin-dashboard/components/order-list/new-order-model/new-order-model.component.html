@@ -1,0 +1,30 @@
+<mat-dialog-content>
+    <mat-card style="background-color: transparent;border: none;box-shadow: none;" class="order-form">
+      <mat-card-title>Add New Order</mat-card-title>
+  
+      <mat-form-field appearance="outline">
+        <mat-label>Delivery Address</mat-label>
+        <input matInput placeholder="Building-Wing-Room" [(ngModel)]="newOrder.deliveryAddress">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Bottles Required</mat-label>
+        <input matInput type="number" [(ngModel)]="newOrder.bottlesRequired">
+      </mat-form-field>
+  
+      <mat-form-field appearance="outline">
+        <mat-label>Urgency</mat-label>
+        <mat-select [(ngModel)]="newOrder.urgencyFlag">
+          <mat-option value="low">Low</mat-option>
+          <mat-option value="medium">Medium</mat-option>
+          <mat-option value="high">High</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </mat-card>
+  </mat-dialog-content>
+  
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="closeDialog()">Cancel</button>
+    <button mat-raised-button color="primary" (click)="addOrder()">Submit Order</button>
+  </mat-dialog-actions>
+  

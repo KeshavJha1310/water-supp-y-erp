@@ -1,5 +1,7 @@
 import { Component ,OnInit } from '@angular/core';
 import { OrderServiceService } from '../../../../../core/services/order-service.service';
+import { MatDialog } from '@angular/material/dialog';
+import { NewOrderModelComponent } from './new-order-model/new-order-model.component';
 @Component({
   selector: 'app-order-list',
   standalone:false,
@@ -13,7 +15,8 @@ export class OrderListComponent implements OnInit{
   pendingOrders: any[] = [];
 
   constructor(
-    private orderService:OrderServiceService
+    private orderService:OrderServiceService,
+    public dialog: MatDialog
   ){}
 
   ngOnInit(): void {
@@ -23,18 +26,18 @@ export class OrderListComponent implements OnInit{
     })
   }
 
-  async addOrder(){
-    if (!this.newOrder.bottlesRequired || !this.newOrder.deliveryAddress) {
-      alert('Please fill all fields!');
-      return;
-    }
-   const res = await this.orderService.addNewOrder(this.newOrder.deliveryAddress,this.newOrder.bottlesRequired,this.newOrder.urgencyFlag)
-   console.log(res);
-   this.newOrder = { bottlesRequired: null, deliveryAddress: '', urgencyFlag: 'low' };
+  openOrderDialog() {
+    const dialogRef = this.dialog.open(NewOrderModelComponent, {
+      width: '700px', // Adjust width as needed
+      disableClose: true, // Prevent closing on outside click
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('New Order:', result); // Handle order submission
+      }
+    });
   }
 
-  markAsCompleted(arg0: any) {
-    console.log(arg0)
-    }
 
 }

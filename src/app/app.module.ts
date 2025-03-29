@@ -38,6 +38,8 @@ import { ReportsComponent } from './features/dashboard/admin-dashboard/component
 import { OrderListComponent } from './features/dashboard/admin-dashboard/components/order-list/order-list.component';
 import { DeliveryStaffComponent } from './features/dashboard/admin-dashboard/components/delivery-staff/delivery-staff.component';
 import {MatSelectModule} from '@angular/material/select';
+import { MatDialogModule } from '@angular/material/dialog';
+import { NewOrderModelComponent } from './features/dashboard/admin-dashboard/components/order-list/new-order-model/new-order-model.component';
 @NgModule({
     declarations:[
         AppComponent,
@@ -49,9 +51,11 @@ import {MatSelectModule} from '@angular/material/select';
         CustomerManagementComponent,
         ReportsComponent,
         OrderListComponent,
-        DeliveryStaffComponent
+        DeliveryStaffComponent,
+        NewOrderModelComponent
     ], 
     imports:[
+        MatDialogModule,
         MatSelectModule,
         MatListModule,
         MatToolbarModule,

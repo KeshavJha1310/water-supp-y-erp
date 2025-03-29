@@ -29,7 +29,7 @@ export class OrderServiceService implements OnInit {
   }
 
 
-  async addNewOrder(address: string, urgencyFlag: string,noOfBottles:any) {
+  async addNewOrder(address: string,noOfBottles:any, urgencyFlag: string) {
     if (!this.userID) {
       console.error("User ID not found");
       return;
