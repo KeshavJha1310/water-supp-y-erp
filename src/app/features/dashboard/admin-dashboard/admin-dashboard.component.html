@@ -1,61 +1,63 @@
 <div class="admin-dashboard">
-    <mat-sidenav-container class="sidenav-container">
+  <mat-sidenav-container [ngStyle]="{ 'height': isMobile ? '92.9vh' : '90.4vh' }"
+  class="sidenav-container">
+    
+    <!-- Sidebar -->
+    <mat-sidenav 
+      #sidenav 
+      [mode]="isMobile ? 'over' : 'side'" 
+      class="custom-sidebar" 
+      [(opened)]="isMenuOpen">
       
-      <!-- Sidebar -->
-      <mat-sidenav #sidenav mode="side" class="custom-sidebar" opened>
-        <div class="sidebar-header">
-          <mat-icon class="menu-icon" (click)="sidenav.toggle()">menu</mat-icon>
-          <span>Admin Panel</span>
-        </div>
-        
-        <mat-nav-list>
-          <button mat-button class="nav-item" (click)="loadComponent('orders')">
-            <mat-icon>list_alt</mat-icon>
-            Orders
-          </button>
-          <button mat-button class="nav-item" (click)="loadComponent('delivery')">
-            <mat-icon>local_shipping</mat-icon>
-            Delivery Staff
-          </button>
-          <button mat-button class="nav-item" (click)="loadComponent('customers')">
-            <mat-icon>people</mat-icon>
-            Customers
-          </button>
-          <button mat-button class="nav-item" (click)="loadComponent('reports')">
-            <mat-icon>assessment</mat-icon>
-            Reports
-          </button>
-        </mat-nav-list>
-      </mat-sidenav>
-  
-      <!-- Main Content -->
-      <mat-sidenav-content style="width: 100vw;">
-        <mat-toolbar class="top-toolbar">
-          <button mat-icon-button (click)="sidenav.toggle()">
-            <mat-icon>menu</mat-icon>
-          </button>
-          <span class="dashboard-title">Admin Dashboard</span>
-          <span class="spacer"></span>
-          <!-- <button mat-button class="logout-button" (click)="logout()">Logout</button> -->
-        </mat-toolbar>
-  
-        <!-- Dynamic Content -->
-        <div class="content">
-          <ng-container *ngIf="selectedComponent === 'orders'">
-            <app-order-list></app-order-list>
-          </ng-container>
-          <ng-container *ngIf="selectedComponent === 'delivery'">
-            <app-delivery-staff></app-delivery-staff>
-          </ng-container>
-          <ng-container *ngIf="selectedComponent === 'customers'">
-            <app-customer-management></app-customer-management>
-          </ng-container>
-          <ng-container *ngIf="selectedComponent === 'reports'">
-            <app-reports></app-reports>
-          </ng-container>
-        </div>
-      </mat-sidenav-content>
-  
-    </mat-sidenav-container>
-  </div>
-  
+      <div class="sidebar-header">
+        <mat-icon class="menu-icon" (click)="toggleMenuAndCloseIcon()">close</mat-icon>
+        <span>Admin Panel</span>
+      </div>
+
+      <mat-nav-list>
+        <button mat-button class="nav-item" (click)="loadComponent('orders')">
+          <mat-icon>list_alt</mat-icon> Orders
+        </button>
+        <button mat-button class="nav-item" (click)="loadComponent('delivery')">
+          <mat-icon>local_shipping</mat-icon> Delivery Staff
+        </button>
+        <button mat-button class="nav-item" (click)="loadComponent('customers')">
+          <mat-icon>people</mat-icon> Customers
+        </button>
+        <button mat-button class="nav-item" (click)="loadComponent('reports')">
+          <mat-icon>assessment</mat-icon> Reports
+        </button>
+      </mat-nav-list>
+
+    </mat-sidenav>
+
+    <!-- Main Content -->
+    <mat-sidenav-content style="width: 100vw;height:90.4vh ;">
+      <mat-toolbar class="top-toolbar">
+        <button mat-icon-button (click)="toggleMenuAndCloseIcon()">
+          <mat-icon *ngIf="!isMenuOpen" style="color: black;">menu</mat-icon>
+        </button>
+        <span class="dashboard-title">Admin Dashboard</span>
+        <span class="spacer"></span>
+        <!-- <button mat-button class="logout-button">Logout</button> -->
+      </mat-toolbar>
+
+      <!-- Dynamic Content -->
+      <div class="content">
+        <ng-container *ngIf="selectedComponent === 'orders'">
+          <app-order-list></app-order-list>
+        </ng-container>
+        <ng-container *ngIf="selectedComponent === 'delivery'">
+          <app-delivery-staff></app-delivery-staff>
+        </ng-container>
+        <ng-container *ngIf="selectedComponent === 'customers'">
+          <app-customer-management></app-customer-management>
+        </ng-container>
+        <ng-container *ngIf="selectedComponent === 'reports'">
+          <app-reports></app-reports>
+        </ng-container>
+      </div>
+    </mat-sidenav-content>
+
+  </mat-sidenav-container>
+</div>
