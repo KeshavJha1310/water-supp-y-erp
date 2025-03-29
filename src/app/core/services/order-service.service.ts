@@ -1,4 +1,4 @@
-import { Injectable , OnInit } from '@angular/core';
+import { inject, Injectable , OnInit } from '@angular/core';
 import { UserService } from './user.service';
 import { Observable } from 'rxjs/internal/Observable';
 import { BehaviorSubject, concatAll ,firstValueFrom, MonoTypeOperatorFunction, Subject} from 'rxjs';
@@ -9,32 +9,36 @@ import { Auth, Config, User } from '@angular/fire/auth';
   providedIn: 'root'
 })
 export class OrderServiceService implements OnInit {
-
+  private firestore = inject(Firestore); 
   private ordersSubject = new BehaviorSubject<any[]>([]);
   orders$ = this.ordersSubject.asObservable();
 
   constructor(
-    private firestore: Firestore,
+   
     private userService: UserService
   ) { }
 
   userID:any
 
-  ngOnInit(): void {
-    this.userService.authState$.subscribe(async (user: User | null)=>{
-      console.log(user)
-      this.userID = user?.uid;
-      this.listenToOrders();
-    })
+ async ngOnInit(): Promise<void> {
+    // this.userService.user$.subscribe(async (user: User | null)=>{
+    //   console.log(user)
+    //   this.userID = user?.uid;
+    //   this.listenToOrders();
+    // })
+    // const user = await this.userService.getCurrentUser()
+    // if(user){
+    //   this.userID = user?.uid;
+    //   console.log(this.userID)
+    //   this.listenToOrders(userID);
+    // }
   }
 
 
   async addNewOrder(address: string,noOfBottles:any, urgencyFlag: string) {
-    if (!this.userID) {
-      console.error("User ID not found");
-      return;
-    }
-
+    const user = await this.userService.getCurrentUser()
+    this.userID = user?.uid;
+    console.log(this.userID)
     const ordersRef = collection(this.firestore, `users/${this.userID}/all-orders`);
    const res = await addDoc(ordersRef, {
       address,
@@ -43,20 +47,20 @@ export class OrderServiceService implements OnInit {
       status: 'pending',
       timestamp: new Date().toISOString()
     });
-
+    this.listenToOrders(this.userID);
     return res;
   }
 
-  private listenToOrders() {
-    if (!this.userID) return;
-  
-    const ordersRef = collection(this.firestore, `users/${this.userID}/all-orders`);
+   listenToOrders(userID:any) {
+    if (!userID) return;
+    const ordersRef = collection(this.firestore, `users/${userID}/all-orders`);
   
     onSnapshot(ordersRef, (snapshot) => {
       const updatedOrders = snapshot.docs.map(doc => ({
         orderId: doc.id,
         ...doc.data()
       }));
+      console.log(updatedOrders)
       this.ordersSubject.next(updatedOrders);
     });
   }

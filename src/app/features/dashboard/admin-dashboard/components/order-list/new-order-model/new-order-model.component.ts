@@ -28,10 +28,15 @@ export class NewOrderModelComponent implements OnInit , OnDestroy {
       alert('Please fill all fields!');
       return;
     }
+    console.log(this.newOrder)
    const res = await this.orderService.addNewOrder(this.newOrder.deliveryAddress,this.newOrder.bottlesRequired,this.newOrder.urgencyFlag)
    console.log(res);
    this.newOrder = { bottlesRequired: 1, deliveryAddress: '', urgencyFlag: 'low' };
    this.dialogRef.close(this.newOrder);
+  }
+
+  getUrgencyFlag(flag:string){
+    this.newOrder.urgencyFlag = flag
   }
   
 increaseBottles() {
@@ -44,9 +49,7 @@ decreaseBottles() {
   }
 }
 
-markAsCompleted(arg0: any) {
-  console.log(arg0)
-  }
+
   closeDialog() {
     this.dialogRef.close();
   }

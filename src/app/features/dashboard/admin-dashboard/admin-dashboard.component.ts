@@ -2,7 +2,8 @@ import { Component , OnInit , OnDestroy , ViewChild, HostListener } from '@angul
 import { AuthService } from '../../../auth/auth.service';
 import { Router } from '@angular/router';
 import { MatSidenav } from '@angular/material/sidenav';
-
+import { UserService } from '../../../core/services/user.service';
+import { OrderServiceService } from '../../../core/services/order-service.service';
 @Component({
   selector: 'app-admin-dashboard',
   standalone:false,
@@ -15,16 +16,22 @@ export class AdminDashboardComponent implements OnInit,OnDestroy{
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private userService: UserService,
+    private orderService: OrderServiceService
   ){}
 
   selectedComponent = 'orders';
   isMenuOpen :boolean=true;
   isMobile = window.innerWidth < 768;
 
-  ngOnInit(): void {
+ async ngOnInit(): Promise<void> {
 
-  
+    const user = await this.userService.getCurrentUser();
+    if(user?.uid){
+      console.log(user?.uid)
+      this.orderService.listenToOrders(user?.uid)
+    }
   }
   
   loadComponent(componentName: string) {

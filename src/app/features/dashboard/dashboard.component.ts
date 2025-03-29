@@ -1,6 +1,7 @@
 import { Component , OnInit , HostListener  } from '@angular/core';
 import { UserService } from '../../core/services/user.service';
 import { AuthService } from '../../auth/auth.service';
+import { OrderServiceService } from '../../core/services/order-service.service';
 @Component({
   selector: 'app-dashboard',
   standalone:false,
@@ -14,15 +15,23 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private userService:UserService,
-    private authService:AuthService
+    private authService:AuthService,
+    private orderService:OrderServiceService
   ){}
 
   async ngOnInit() {
     const userData = await this.userService.getUserData();
     if (userData) {
+      console.log(userData)
       this.role = userData.role; 
     }
     this.checkScreenSize();
+  const user = await this.userService.getCurrentUser();
+  if(user?.uid){
+    this.orderService.listenToOrders(user?.uid)
+  }
+ 
+  
   }
 
   

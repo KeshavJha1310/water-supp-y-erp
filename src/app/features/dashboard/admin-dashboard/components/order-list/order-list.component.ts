@@ -2,6 +2,7 @@ import { Component ,OnInit } from '@angular/core';
 import { OrderServiceService } from '../../../../../core/services/order-service.service';
 import { MatDialog } from '@angular/material/dialog';
 import { NewOrderModelComponent } from './new-order-model/new-order-model.component';
+import { UserService } from '../../../../../core/services/user.service';
 @Component({
   selector: 'app-order-list',
   standalone:false,
@@ -16,10 +17,16 @@ export class OrderListComponent implements OnInit{
 
   constructor(
     private orderService:OrderServiceService,
+    private userService:UserService,
     public dialog: MatDialog
   ){}
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
+    const user = await this.userService.getCurrentUser();
+    if(user?.uid){
+      console.log(user?.uid)
+      this.orderService.listenToOrders(user?.uid);
+    }
     this.orderService.orders$.subscribe((orders:any)=>{
       console.log(orders);
       // this.pendingOrders = orders.filter((order: any) => order.status === 'pending');
@@ -28,7 +35,7 @@ export class OrderListComponent implements OnInit{
 
   openOrderDialog() {
     const dialogRef = this.dialog.open(NewOrderModelComponent, {
-      width: '700px', // Adjust width as needed
+      width: '400px', // Adjust width as needed
       disableClose: true, // Prevent closing on outside click
     });
 
@@ -39,5 +46,8 @@ export class OrderListComponent implements OnInit{
     });
   }
 
+  markAsCompleted(arg0: any) {
+    console.log(arg0)
+    }
 
 }
