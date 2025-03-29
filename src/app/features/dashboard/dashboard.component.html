@@ -1,25 +1,20 @@
 <div class="dashboard-container">
-    <!-- Header -->
     <header class="dashboard-header">
+
       <h1>Shivaay Water Supply</h1>
-  
-      <!-- Desktop View: Show User Info -->
       <div class="user-info" *ngIf="!isMobile">
         <button mat-button color="warn" (click)="logout()">Logout</button>
       </div>
   
-      <!-- Mobile View: Show Hamburger -->
       <button mat-icon-button class="hamburger" (click)="toggleMenu()" *ngIf="isMobile">
         <mat-icon>{{ menuOpen ? 'close' : 'menu' }}</mat-icon>
       </button>
     </header>
   
-    <!-- Mobile Menu -->
     <div class="mobile-menu" *ngIf="menuOpen && isMobile">
       <button mat-button color="warn" (click)="logout()">Logout</button>
     </div>
   
-    <!-- Dashboard Content -->
     <div class="dashboard-content">
       <ng-container *ngIf="role === 'admin'; else deliveryTemplate">
         <app-admin-dashboard></app-admin-dashboard>

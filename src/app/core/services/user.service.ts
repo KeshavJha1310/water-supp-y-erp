@@ -1,13 +1,20 @@
-import { Injectable } from '@angular/core';
-import { Auth, User } from '@angular/fire/auth';
+import { Injectable , OnInit , inject } from '@angular/core';
+import { Auth, User , user , authState} from '@angular/fire/auth';
 import { Firestore, doc, getDoc } from '@angular/fire/firestore';
 
 @Injectable({
   providedIn: 'root'
 })
-export class UserService {
+export class UserService implements OnInit {
 
-  constructor(private auth: Auth, private firestore: Firestore) {}
+  constructor(private firestore: Firestore) {}
+  private auth: Auth =inject(Auth);
+  
+  ngOnInit(): void {
+    
+  }
+  user$ = user(this.auth);
+  authState$ = authState(this.auth);
 
   getCurrentUser(): Promise<User | null> {
     return Promise.resolve(this.auth.currentUser);

@@ -15,18 +15,20 @@
       </div>
 
       <mat-nav-list>
-        <button mat-button class="nav-item" (click)="loadComponent('orders')">
-          <mat-icon>list_alt</mat-icon> Orders
-        </button>
-        <button mat-button class="nav-item" (click)="loadComponent('delivery')">
-          <mat-icon>local_shipping</mat-icon> Delivery Staff
-        </button>
-        <button mat-button class="nav-item" (click)="loadComponent('customers')">
-          <mat-icon>people</mat-icon> Customers
-        </button>
-        <button mat-button class="nav-item" (click)="loadComponent('reports')">
-          <mat-icon>assessment</mat-icon> Reports
-        </button>
+        <div class="side-list-wrap">
+          <button mat-button class="nav-item" (click)="loadComponent('orders')">
+            <mat-icon>list_alt</mat-icon> Orders
+          </button>
+          <button mat-button class="nav-item" (click)="loadComponent('delivery')">
+            <mat-icon>local_shipping</mat-icon> Delivery Staff
+          </button>
+          <button mat-button class="nav-item" (click)="loadComponent('customers')">
+            <mat-icon>people</mat-icon> Customers
+          </button>
+          <button mat-button class="nav-item" (click)="loadComponent('reports')">
+            <mat-icon>assessment</mat-icon> Reports
+          </button>
+        </div>
       </mat-nav-list>
 
     </mat-sidenav>
@@ -34,10 +36,12 @@
     <!-- Main Content -->
     <mat-sidenav-content style="width: 100vw;height:90.4vh ;">
       <mat-toolbar class="top-toolbar">
-        <button mat-icon-button (click)="toggleMenuAndCloseIcon()">
-          <mat-icon *ngIf="!isMenuOpen" style="color: black;">menu</mat-icon>
-        </button>
-        <span class="dashboard-title">Admin Dashboard</span>
+        <!-- <button mat-icon-button > -->
+          <mat-icon (click)="toggleMenuAndCloseIcon()" *ngIf="!isMenuOpen" style="color: black;">menu</mat-icon>
+        <!-- </button> -->
+        <span 
+        [ngStyle]="{'font-size':isMobile ? '.95rem':'1rem'}"
+         class="dashboard-title">Admin Dashboard</span>
         <span class="spacer"></span>
         <!-- <button mat-button class="logout-button">Logout</button> -->
       </mat-toolbar>

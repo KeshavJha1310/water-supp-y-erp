@@ -1,1 +1,48 @@
-<p>order-list works!</p>
+<div class="orders-container">
+    <!-- New Order Form (Visible Only to Admin) -->
+    <mat-card class="order-form">
+      <mat-card-title>Add New Order</mat-card-title>
+      <mat-form-field appearance="outline">
+        <mat-label>Bottles Required</mat-label>
+        <input matInput type="number" [(ngModel)]="newOrder.bottlesRequired">
+      </mat-form-field>
+  
+      <mat-form-field appearance="outline">
+        <mat-label>Delivery Address</mat-label>
+        <input matInput placeholder="Building-Wing-Room" [(ngModel)]="newOrder.deliveryAddress">
+      </mat-form-field>
+  
+      <mat-form-field appearance="outline">
+        <mat-label>Urgency</mat-label>
+        <mat-select [(ngModel)]="newOrder.urgencyFlag">
+          <mat-option value="low">Low</mat-option>
+          <mat-option value="medium">Medium</mat-option>
+          <mat-option value="high">High</mat-option>
+        </mat-select>
+      </mat-form-field>
+  
+      <button mat-raised-button color="primary" (click)="addOrder()">Submit Order</button>
+    </mat-card>
+  
+    <!-- Pending Orders List -->
+    <mat-card class="orders-list">
+      <mat-card-title>Pending Orders</mat-card-title>
+      <mat-list *ngIf="pendingOrders.length > 0; else noOrders">
+        <mat-list-item *ngFor="let order of pendingOrders">
+          <div class="order-details">
+            <span class="bottles">{{ order.bottlesRequired }} Bottles</span>
+            <span class="address">{{ order.deliveryAddress }}</span>
+            <span class="urgency" [ngClass]="order.urgencyFlag">{{ order.urgencyFlag | uppercase }}</span>
+          </div>
+          <button mat-icon-button color="primary" (click)="markAsCompleted(order.orderId)">
+            <mat-icon>check_circle</mat-icon>
+          </button>
+        </mat-list-item>
+      </mat-list>
+  
+      <ng-template #noOrders>
+        <p class="no-orders-msg">No pending orders</p>
+      </ng-template>
+    </mat-card>
+  </div>
+  

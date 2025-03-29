@@ -1,0 +1,56 @@
+.orders-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    max-width: 600px;
+    margin: auto;
+  }
+  
+  .order-form, .orders-list {
+    padding: 20px;
+    border-radius: 8px;
+  }
+  
+  .order-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .bottles {
+    font-weight: bold;
+  }
+  
+  .address {
+    color: gray;
+  }
+  
+  .urgency {
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+  }
+  
+  .urgency.low {
+    background: lightgreen;
+    color: green;
+  }
+  
+  .urgency.medium {
+    background: yellow;
+    color: orange;
+  }
+  
+  .urgency.high {
+    background: lightcoral;
+    color: red;
+  }
+  
+  .no-orders-msg {
+    text-align: center;
+    color: gray;
+    font-style: italic;
+  }
+  
