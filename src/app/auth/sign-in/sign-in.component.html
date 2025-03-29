@@ -1,0 +1,36 @@
+<div class="login-container">
+    <mat-card *ngIf="signInForm">
+      <h2>Add Delivery Man</h2>
+      <form [formGroup]="signInForm" (ngSubmit)="addDeliveryMan()">
+        
+        <mat-form-field class="full-width">
+          <mat-label>Email</mat-label>
+          <input matInput type="email" formControlName="email" required />
+          <mat-error *ngIf="signInForm.get('email')?.invalid && signInForm.get('email')?.touched">
+            Valid email is required
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field class="full-width">
+          <mat-label>Password</mat-label>
+          <div class="visibility">
+            <input matInput 
+                   [type]="hidePassword ? 'password' : 'text'" 
+                   formControlName="password" 
+                   required />
+            <mat-icon (click)="hidePassword = !hidePassword">{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </div>
+          <mat-error *ngIf="signInForm.get('password')?.invalid && signInForm.get('password')?.touched">
+            Password must be at least 6 characters
+          </mat-error>
+        </mat-form-field>
+
+        <!-- ✅ Loader & Button -->
+        <button type="submit" mat-raised-button color="primary" [disabled]="signInForm.invalid || loading">
+          <!-- <mat-spinner *ngIf="loading" diameter="20"></mat-spinner> -->
+          {{ loading ? 'Loading...' : 'Sign In' }}
+        </button>
+
+      </form>
+    </mat-card>
+</div>

@@ -1,0 +1,83 @@
+html, body {
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #f5f5f5; /* Light gray background */
+}
+
+.visibility{
+    display: flex;
+    align-items: center;
+    position: relative;
+    justify-content: space-between;
+    left: 0px;
+    top: 0px;
+}
+
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 95vh;
+}
+
+mat-card {
+    width: 400px;
+    padding: 24px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    background-color: #fff;
+    text-align: center;
+}
+
+h2 {
+    margin-bottom: 20px;
+    font-weight: 600;
+    color: #333;
+}
+
+mat-form-field {
+    width: 100%;
+    margin-bottom: 16px; /* Spacing between fields */
+}
+
+.mat-form-field-underline {
+    background-color: #6200ea !important; /* Primary color for input underline */
+}
+
+mat-error {
+    font-size: 12px;
+    color: #d32f2f;
+}
+
+button {
+    width: 100%;
+    margin-top: 16px;
+    font-size: 16px;
+    font-weight: 500;
+    text-transform: uppercase;
+    background: transparent;
+    color: #6200ea; 
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 1px solid #6200ea; 
+    transition: all 0.3s ease-in-out;
+}
+
+button:hover {
+    box-shadow: 0 0 5px rgba(98, 0, 234, 0.5);
+    transform: translateY(-1px); 
+}
+
+mat-card:hover {
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+:host .mdc-text-field--filled:not(.mdc-text-field--disabled) {
+    background-color:transparent;
+}
