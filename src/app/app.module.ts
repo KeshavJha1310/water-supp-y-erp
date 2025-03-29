@@ -30,7 +30,13 @@ import { DeliveryDashboardComponent } from './features/dashboard/delivery-dashbo
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-
+import {MatSidenavModule} from '@angular/material/sidenav';
+import {MatToolbarModule} from '@angular/material/toolbar';
+import {MatListModule} from '@angular/material/list';
+import { CustomerManagementComponent } from './features/dashboard/admin-dashboard/components/customer-management/customer-management.component';
+import { ReportsComponent } from './features/dashboard/admin-dashboard/components/reports/reports.component';
+import { OrderListComponent } from './features/dashboard/admin-dashboard/components/order-list/order-list.component';
+import { DeliveryStaffComponent } from './features/dashboard/admin-dashboard/components/delivery-staff/delivery-staff.component';
 @NgModule({
     declarations:[
         AppComponent,
@@ -39,8 +45,15 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
         AdminDashboardComponent,
         DeliveryDashboardComponent,
         DashboardComponent,
+        CustomerManagementComponent,
+        ReportsComponent,
+        OrderListComponent,
+        DeliveryStaffComponent
     ], 
     imports:[
+        MatListModule,
+        MatToolbarModule,
+        MatSidenavModule,
         MatIconModule,
         RouterOutlet,
         RouterModule.forRoot(routes),
