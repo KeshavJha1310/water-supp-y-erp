@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
+import { UserService } from '../../core/services/user.service';
 
 @Component({
   selector: 'app-sign-in',
@@ -20,7 +21,8 @@ export class SignInComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private authService: AuthService,
     private snackBar: MatSnackBar, 
-    private router: Router 
+    private router: Router,
+    private userService: UserService
   ) {}
 
   ngOnInit(): void {
@@ -37,9 +39,15 @@ export class SignInComponent implements OnInit, OnDestroy {
     const { email, password } = this.signInForm.value;
 
     try {
-      await this.authService.addDeliveryMan(email, password, 'admin');
+     const user = await this.authService.getCurrentUser();
+     let userId;
+     if(user){
+      userId = user.uid;
+     }
+      await this.authService.addDeliveryMan(email, password, 'delivery',userId);
       this.snackBar.open('Delivery Man added successfully!', 'OK', { duration: 3000 }); 
-      this.router.navigate(['/login']); 
+      this.userService.setBack(true);
+      // this.router.navigate(['/']); 
     } catch (error) {
       console.error("Error:", error);
       this.snackBar.open('Failed to add Delivery Man', 'OK', { duration: 3000 }); // ✅ Show error message

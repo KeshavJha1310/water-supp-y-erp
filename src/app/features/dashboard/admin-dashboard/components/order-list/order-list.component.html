@@ -1,32 +1,124 @@
 <div class="orders-container">
-    <!-- New Order Form (Visible Only to Admin) -->
-     <div class="btn-wrapper">
-
-      
-       <button mat-raised-button color="accent" (click)="openOrderDialog()">
-         Add New Order
-       </button>
-     </div>
-  
-    <!-- Pending Orders List -->
-    <mat-card class="orders-list">
-      <mat-card-title>Pending Orders</mat-card-title>
-      <mat-list *ngIf="pendingOrders.length > 0; else noOrders">
-        <mat-list-item *ngFor="let order of pendingOrders">
-          <div class="order-details">
-            <span class="bottles">{{ order.bottlesRequired }} Bottles</span>
-            <span class="address">{{ order.deliveryAddress }}</span>
-            <span class="urgency" [ngClass]="order.urgencyFlag">{{ order.urgencyFlag | uppercase }}</span>
-          </div>
-          <button mat-icon-button color="primary" (click)="markAsCompleted(order.orderId)">
-            <mat-icon>check_circle</mat-icon>
-          </button>
-        </mat-list-item>
-      </mat-list>
-  
-      <ng-template #noOrders>
-        <p class="no-orders-msg">No pending orders</p>
-      </ng-template>
-    </mat-card>
+  <!-- New Order Form (Visible Only to Admin) -->
+  <div class="btn-wrapper">
+      <button mat-raised-button style="color: green;" 
+          [ngStyle]="{'font-size': isMobile ? '.85rem' : '1rem'}" 
+          (click)="showPending = false; showDelivered = false; showCompleted = true">
+          Completed Orders
+      </button>
+      <button mat-raised-button style="color: red;" 
+          [ngStyle]="{'font-size': isMobile ? '.85rem' : '1rem'}" 
+          (click)="showPending = true; showDelivered = false; showCompleted = false">
+          Pending Orders
+      </button>
+      <button mat-raised-button style="color: orange;" 
+          [ngStyle]="{'font-size': isMobile ? '.85rem' : '1rem'}" 
+          (click)="showPending = false; showDelivered = true; showCompleted = false">
+          Delivered Orders
+      </button>
+      <button mat-raised-button color="accent" 
+          [ngStyle]="{'font-size': isMobile ? '.85rem' : '1rem'}" 
+          (click)="openOrderDialog()">
+          Add Order
+      </button>
   </div>
-  
+
+  <!-- Pending Orders List -->
+  <mat-card *ngIf="showPending" class="orders-list">
+      <mat-card-title>Pending Orders</mat-card-title> 
+      <span>{{size}}</span>
+      <!-- Table Header -->
+      <div class="list-header">
+          <span class="header-item">Address</span>
+          <span class="header-item">BO</span>
+          <span class="header-item">BR</span>
+          <span class="header-item">ST</span>
+          <span class="header-item">R</span>
+          <span class="header-item">TP</span>
+          <span class="header-item">{{isMobile?'D':'Done'}}</span>
+          <span class="header-item">{{isMobile?'C':'Close'}}</span>
+      </div>     
+      <mat-list *ngIf="pendingOrders.length > 0; else noOrders">
+          <mat-list-item *ngFor="let order of pendingOrders">
+            <div [ngStyle]="{ 'background-color': getUrgencyColor(order.urgencyFlag) }" class="order-details">
+                <span class="address">{{ order.address }}</span>
+                <span class="bottles">{{ order.noOfBottles }}</span>
+                <span class="bottles-return">
+                    <input [(ngModel)]="bottleReturned" type="number"/>
+                </span>
+                <span class="status">
+                    {{ order.status === 'pending' ? 'P' : (order.status === 'delivered' ? 'D' : '') }}
+                </span>
+                <span class="price">{{ order.payment.perBottlePrice }}</span>
+                <span class="total-payment">{{ order.payment.totalToPaid }}</span>
+            
+                <!-- <span class="actions"> -->
+                    <mat-checkbox [checked]="order.status === 'delivered'" (change)="markAsDelivered($event, order)"></mat-checkbox>
+                    <mat-checkbox [checked]="order.status === 'completed'" (change)="markAsCompleted($event,order)"></mat-checkbox>
+                <!-- </span> -->
+            </div>
+            
+          </mat-list-item>
+      </mat-list>
+      <ng-template #noOrders>
+          <p class="no-orders-msg">No pending orders</p>
+      </ng-template>
+  </mat-card>
+
+  <!-- Completed Orders List -->
+  <mat-card *ngIf="showCompleted" class="orders-list">
+      <mat-card-title>Completed Orders</mat-card-title>   
+         
+      <mat-list *ngIf="completedOrders.length > 0; else noOrders">
+          <mat-list-item *ngFor="let order of completedOrders">
+              <div class="order-details">
+                  <span class="address">{{ order.address }}</span>
+                  <span class="bottles">{{ order.noOfBottles }} Bottles</span>
+                  <span class="urgency" [ngClass]="order.urgencyFlag">{{ order.urgencyFlag | uppercase }}</span>
+              </div>
+          </mat-list-item>
+      </mat-list>
+      <ng-template #noOrders>
+          <p class="no-orders-msg">No completed orders</p>
+      </ng-template>
+  </mat-card>
+
+  <!-- Delivered Orders List -->
+  <mat-card *ngIf="showDelivered" class="orders-list">
+      <mat-card-title>Delivered Orders</mat-card-title>   
+      <div class="list-header">
+        <span class="header-item">Address</span>
+        <span class="header-item">BO</span>
+        <span class="header-item">BR</span>
+        <span class="header-item">ST</span>
+        <span class="header-item">R</span>
+        <span class="header-item">TP</span>
+        <span class="header-item">PS</span>
+        <span class="header-item">M</span>
+        <!-- <span class="header-item">{{isMobile?'D':'Done'}}</span> -->
+        <span class="header-item">{{isMobile?'C':'Close'}}</span>
+    </div>    
+      <mat-list *ngIf="deliveredOrders.length > 0; else noOrders">
+          <mat-list-item *ngFor="let order of deliveredOrders">
+              <div [ngStyle]="{ 'background-color': getUrgencyColor(order.urgencyFlag) }" class="order-details">
+                  <span class="address">{{ order.address }}</span>
+                  <span class="bottles">{{ order.noOfBottles }}</span>
+                  <span class="bottles">{{ order.bottleReturned }}</span>
+                  <span class="bottles">
+                    {{ order.status === 'pending' ? 'P' : (order.status === 'delivered' ? 'D' : '') }}
+                </span>
+                <span class="price">{{ order.payment.perBottlePrice }}</span>
+                <span class="price">{{order.payment.totalToPaid }}</span>
+                <span class="price">{{order.payment.done }}</span>
+                <span class="price">{{order.payment.mode }}</span>
+                <mat-checkbox [checked]="order.status === 'completed'" (change)="markAsCompleted($event,order)"></mat-checkbox>
+
+                  <!-- <span class="urgency" [ngClass]="order.urgencyFlag">{{ order.urgencyFlag | uppercase }}</span> -->
+              </div>
+          </mat-list-item>
+      </mat-list>
+      <ng-template #noOrders>
+          <p class="no-orders-msg">No delivered orders</p>
+      </ng-template>
+  </mat-card>
+</div>

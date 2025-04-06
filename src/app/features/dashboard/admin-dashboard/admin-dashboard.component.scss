@@ -68,10 +68,14 @@ width: 99.9vw;
     height: 57px;
     padding: 0 16px;
     gap: 10px;
+    .tool-title{
+      color: rgb(0, 0, 0);
+      justify-content: end;
+    }
   }
 
   .spacer {
-    flex: 1;
+    flex:1;
   }
 
   .logout-button {
@@ -89,13 +93,32 @@ width: 99.9vw;
     padding: 20px;
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 985px) {
     .custom-sidebar {
       width: 200px;
     }
 
     .top-toolbar {
-      height: 50px;
+      height: 57px;
+      padding: 0 12px;
+    }
+
+    .content {
+      padding: 10px;
+    }
+
+    .nav-item {
+      padding: 8px;
+      font-size: 14px;
+    }
+  }
+  @media (max-width: 920px) {
+    .custom-sidebar {
+      width: 200px;
+    }
+
+    .top-toolbar {
+      height: 57px;
       padding: 0 12px;
     }
 

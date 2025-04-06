@@ -1,14 +1,8 @@
 <div class="admin-dashboard">
-  <mat-sidenav-container [ngStyle]="{ 'height': isMobile ? '92.9vh' : '90.4vh' }"
-  class="sidenav-container">
-    
+  <mat-sidenav-container [ngStyle]="{ 'height': isMobile || isTab ? '89.9vh' : '90.4vh' }" class="sidenav-container">
+
     <!-- Sidebar -->
-    <mat-sidenav 
-      #sidenav 
-      [mode]="isMobile ? 'over' : 'side'" 
-      class="custom-sidebar" 
-      [(opened)]="isMenuOpen">
-      
+    <mat-sidenav #sidenav [mode]="isMobile || isTab ? 'over' : 'side'" class="custom-sidebar" [(opened)]="isMenuOpen">
       <div class="sidebar-header">
         <mat-icon class="menu-icon" (click)="toggleMenuAndCloseIcon()">close</mat-icon>
         <span>Admin Panel</span>
@@ -22,6 +16,9 @@
           <button mat-button class="nav-item" (click)="loadComponent('delivery')">
             <mat-icon>local_shipping</mat-icon> Delivery Staff
           </button>
+          <button mat-button (click)="openDialog(dialogTemplate)"class="nav-item">
+            <mat-icon>domain</mat-icon> Add Building
+          </button>
           <button mat-button class="nav-item" (click)="loadComponent('customers')">
             <mat-icon>people</mat-icon> Customers
           </button>
@@ -34,15 +31,16 @@
     </mat-sidenav>
 
     <!-- Main Content -->
-    <mat-sidenav-content style="width: 100vw;height:90.4vh ;">
+    <mat-sidenav-content style="width: 100vw;height:90.4vh;">
       <mat-toolbar class="top-toolbar">
         <!-- <button mat-icon-button > -->
-          <mat-icon (click)="toggleMenuAndCloseIcon()" *ngIf="!isMenuOpen" style="color: black;">menu</mat-icon>
+        <mat-icon (click)="toggleMenuAndCloseIcon()" *ngIf="!isMenuOpen"
+          style="color: black;cursor: pointer;">menu</mat-icon>
         <!-- </button> -->
-        <span 
-        [ngStyle]="{'font-size':isMobile ? '.95rem':'1rem'}"
-         class="dashboard-title">Admin Dashboard</span>
+        <span [ngStyle]="{'font-size':isMobile || isTab ? '.95rem':'1rem'}" class="dashboard-title">Admin
+          Dashboard</span>
         <span class="spacer"></span>
+        <!-- <span class="spacer"></span> -->
         <!-- <button mat-button class="logout-button">Logout</button> -->
       </mat-toolbar>
 
@@ -65,3 +63,37 @@
 
   </mat-sidenav-container>
 </div>
+<!-- Dialog Template -->
+<ng-template #dialogTemplate>
+  <div style="display: flex;
+      align-items: anchor-center;
+      justify-content: space-around;">
+    <h2 mat-dialog-title>Add Building</h2>
+    <button mat-icon-button color="primary" (click)="addBuildingField()" style="margin-top: 10px;">
+      <mat-icon>add</mat-icon>
+    </button>
+    <button mat-icon-button color="warn" (click)="removeBuildingField()" *ngIf="buildings.length !== 1" style="margin-top: 10px;">
+      <mat-icon>remove</mat-icon>
+    </button>
+    
+  </div>
+  <mat-dialog-content>
+    <form [formGroup]="buildingForm">
+      <div formArrayName="buildings">
+        <div *ngFor="let building of buildings.controls; let i = index" [formGroupName]="i"
+          style="margin-bottom: 10px;">
+
+          <mat-form-field appearance="fill" style="width: 100%;">
+            <mat-label>Building Name {{ i + 1 }}</mat-label>
+            <input matInput formControlName="name" />
+          </mat-form-field>
+        </div>
+      </div>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button mat-raised-button color="primary" (click)="submitBuilding()">Add</button>
+  </mat-dialog-actions>
+</ng-template>

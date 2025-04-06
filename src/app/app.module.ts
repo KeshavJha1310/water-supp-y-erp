@@ -40,6 +40,7 @@ import { DeliveryStaffComponent } from './features/dashboard/admin-dashboard/com
 import {MatSelectModule} from '@angular/material/select';
 import { MatDialogModule } from '@angular/material/dialog';
 import { NewOrderModelComponent } from './features/dashboard/admin-dashboard/components/order-list/new-order-model/new-order-model.component';
+import {MatCheckboxModule} from '@angular/material/checkbox';
 @NgModule({
     declarations:[
         AppComponent,
@@ -55,6 +56,7 @@ import { NewOrderModelComponent } from './features/dashboard/admin-dashboard/com
         NewOrderModelComponent
     ], 
     imports:[
+        MatCheckboxModule,
         MatDialogModule,
         MatSelectModule,
         MatListModule,

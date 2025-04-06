@@ -2,13 +2,46 @@
     <mat-card style="background-color: transparent;border: none;box-shadow: none;" class="order-form">
       <mat-card-title>Add New Order</mat-card-title>
   
-    <mat-form-field appearance="outline">
-      <mat-label>Delivery Address</mat-label>
-      <input matInput placeholder="Building-Wing-Room" [(ngModel)]="newOrder.deliveryAddress">
-    </mat-form-field>
+      <div class="address-wrapper">
+        <mat-form-field appearance="outline">
+          <mat-label>Building</mat-label>
+          <mat-select [(ngModel)]="addressStruct.buildingName">
+            <mat-option *ngFor="let buildings of buildingList" [value]='buildings'>{{buildings}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      
+        <mat-form-field appearance="outline">
+          <mat-label>Wing</mat-label>
+          <mat-select [(ngModel)]="addressStruct.wing">
+            <mat-option *ngFor="let wing of wingOptions" [value]="wing">
+              {{ wing }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      
+        <mat-form-field appearance="outline">
+          <mat-label>Room</mat-label>
+          <input matInput placeholder="Room No." [(ngModel)]="addressStruct.roomNo">
+        </mat-form-field>
+      </div>
 
+      <div class="priceSelect">
+        <div class="priceSelectWrapper">
+          <mat-label class="price-label">Rate</mat-label>
+          
+          <button 
+            mat-raised-button 
+            *ngFor="let price of prices"
+            [ngClass]="{'selected': selectedPrice === price}" 
+            color="primary"
+            (click)="selectPrice(price)">
+            {{ price }}/-
+          </button>
+        </div>
+      </div>
+      
       <div class="bottle-wrapper">
-        <mat-label style="text-align: center;font-size: 20px;">Bottles Required</mat-label>
+        <mat-label style="text-align: center;font-size: 20px;font-weight: 500;">Bottles Required</mat-label>
         <div matSuffix class="counter-container">
            <div (click)="decreaseBottles()" class="sign-icon">
             <mat-icon>remove</mat-icon>
@@ -19,7 +52,7 @@
         </div>
         </div>
 
-          <span style="text-align: center;font-size: 20px;font-weight: bolder;">{{newOrder.bottlesRequired}}</span>
+          <span style="text-align: center;font-size: 20px;font-weight: bolder;font-weight: 500;">{{newOrder.bottlesRequired}}</span>
         
       </div>
     
@@ -33,7 +66,7 @@
       </mat-select>
     </mat-form-field> -->
 
-    <mat-label style="text-align: center;font-size: 20px;">Urgency</mat-label>
+    <mat-label style="text-align: center;font-size: 20px;font-weight: 500;">Urgency</mat-label>
     <div class="Urgency-wrapper">
       <div (click)="getUrgencyFlag('low')" class="Urgency-low">Low</div>
       <div (click)="getUrgencyFlag('medium')" class="Urgency-medium">medium</div>

@@ -21,6 +21,7 @@ export class DashboardComponent implements OnInit {
 
   async ngOnInit() {
     const userData = await this.userService.getUserData();
+    console.log(userData)
     if (userData) {
       console.log(userData)
       this.role = userData.role; 

@@ -46,7 +46,7 @@ export class LoginComponent implements OnInit ,OnDestroy {
         }
       } catch (error) {
         console.error(error);
-
+        this.snackBar.open('Incorrect Credentials!', 'OK', { duration: 3000 }); 
       }finally{
         this.loading = false;
       }
