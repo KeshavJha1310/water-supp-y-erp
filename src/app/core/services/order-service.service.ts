@@ -254,6 +254,7 @@ export class OrderServiceService implements OnInit {
   }
 
   async markDelivered(
+    adminUid:any,
     bottleReturned: number,
     selectedOrder: any,
     paymentStatus: string,
@@ -266,7 +267,7 @@ export class OrderServiceService implements OnInit {
       return;
     }
   
-    this.userID = user.uid;
+    this.userID = adminUid;
   
     const orderRef = doc(this.firestore, `users/${this.userID}/all-orders/${selectedOrder.orderId}`);
     const orderSnap = await getDoc(orderRef);

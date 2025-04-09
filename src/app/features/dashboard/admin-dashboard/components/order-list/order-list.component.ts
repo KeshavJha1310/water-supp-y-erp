@@ -25,6 +25,7 @@ export class OrderListComponent implements OnInit{
   bottleReturned:any = 0;
   size =window.innerWidth ;
   isMobile = window.innerWidth < 768
+  adminId:any;
   constructor(
     private orderService:OrderServiceService,
     private userService:UserService,
@@ -35,6 +36,7 @@ export class OrderListComponent implements OnInit{
     const user = await this.userService.getCurrentUser();
     if(user?.uid){
       console.log(user?.uid)
+      this.adminId = user?.uid
       this.orderService.listenToOrders(user?.uid);
     }
     this.orderService.orders$.subscribe((orders:any)=>{
@@ -119,6 +121,7 @@ export class OrderListComponent implements OnInit{
                 if (amountResult.isConfirmed) {
                   // Log the final details
                   this.orderService.markDelivered(
+                    this.adminId,
                     this.bottleReturned,
                     selectedOrder,
                     'Paid',
@@ -138,6 +141,7 @@ export class OrderListComponent implements OnInit{
         } else {
           // If payment is not completed
           this.orderService.markDelivered(
+            this.adminId,
             this.bottleReturned,
             selectedOrder,
             'Not Paid',
@@ -201,6 +205,7 @@ export class OrderListComponent implements OnInit{
                   if (amountResult.isConfirmed) {
                     // Log the final details
                     this.orderService.markDelivered(
+                      this.adminId,
                       this.bottleReturned,
                       selectedOrder,
                       'Paid',

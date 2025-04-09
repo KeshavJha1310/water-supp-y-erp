@@ -26,12 +26,11 @@
   <!-- Pending Orders List -->
   <mat-card *ngIf="showPending" class="orders-list">
       <mat-card-title>Pending Orders</mat-card-title> 
-      <span>{{size}}</span>
       <!-- Table Header -->
       <div class="list-header">
           <span class="header-item">Address</span>
           <span class="header-item">BO</span>
-          <span class="header-item">BR</span>
+          <!-- <span class="header-item">BR</span> -->
           <span class="header-item">ST</span>
           <span class="header-item">R</span>
           <span class="header-item">TP</span>
@@ -43,9 +42,9 @@
             <div [ngStyle]="{ 'background-color': getUrgencyColor(order.urgencyFlag) }" class="order-details">
                 <span class="address">{{ order.address }}</span>
                 <span class="bottles">{{ order.noOfBottles }}</span>
-                <span class="bottles-return">
+                <!-- <span class="bottles-return">
                     <input [(ngModel)]="bottleReturned" type="number"/>
-                </span>
+                </span> -->
                 <span class="status">
                     {{ order.status === 'pending' ? 'P' : (order.status === 'delivered' ? 'D' : '') }}
                 </span>

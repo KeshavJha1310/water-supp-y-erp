@@ -1,6 +1,9 @@
 import { Component ,
-  HostListener, ChangeDetectorRef,
-  OnInit ,OnDestroy } from '@angular/core';
+  HostListener,
+  ChangeDetectorRef,
+  OnInit,
+  OnDestroy
+} from '@angular/core';
 import { UserService } from '../../../../core/services/user.service';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import Swal from 'sweetalert2';
@@ -8,7 +11,7 @@ import { OrderServiceService } from '../../../../core/services/order-service.ser
 
 @Component({
   selector: 'app-delivery-order-list',
-standalone:false,
+  standalone:false,
   templateUrl: './delivery-order-list.component.html',
   styleUrl: './delivery-order-list.component.scss'
 })
@@ -18,9 +21,11 @@ export class DeliveryOrderListComponent implements OnInit , OnDestroy {
   isTab = window.innerWidth < 900;
   pendingOrders: any[] = [];
   bottleReturned:any = 0;
+  adminId:any;
+  newOrder = { bottlesRequired: null, deliveryAddress: '', urgencyFlag: 'low' };
+
 
   constructor(
-    private cdRef: ChangeDetectorRef,
     private userService : UserService,
     private orderService : OrderServiceService
   ){
@@ -31,6 +36,7 @@ export class DeliveryOrderListComponent implements OnInit , OnDestroy {
   const user = await this.userService.getCurrentUser();
   if(user?.uid){
     const deliveryPersondetails = await this.userService.getUserData();
+    this.adminId = deliveryPersondetails?.adminId;
     this.orderService.listenToOrders(deliveryPersondetails?.adminId);
   }
 
@@ -52,8 +58,32 @@ getUrgencyColor(urgency: string): string {
   }
 }
 
-  markAsDelivered(event: MatCheckboxChange,selectedOrder: any) {
-    if(event.checked){
+markAsDelivered(event: MatCheckboxChange, selectedOrder: any) {
+  if (event.checked) {
+    Swal.fire({
+      title: 'Enter Returned Bottles',
+      input: 'number',
+      inputPlaceholder: 'Returned bottles (optional)',
+      inputAttributes: {
+        min: '0',
+        step: '1'
+      },
+      showCancelButton: true,
+      cancelButtonText: 'Cancel',
+      inputValidator: (value) => {
+        if (value === '' || Number(value) >= 0) {
+          return undefined;
+        }
+        return 'Enter a valid number!';
+      }
+    }).then((returnResult) => {
+      if (!returnResult.isConfirmed) {
+        event.source.checked = false;
+        return;
+      }
+
+      const returnedBottles = Number(returnResult.value || 0);
+
       Swal.fire({
         title: 'Is the payment completed?',
         icon: 'question',
@@ -62,7 +92,6 @@ getUrgencyColor(urgency: string): string {
         cancelButtonText: 'No'
       }).then((result) => {
         if (result.isConfirmed) {
-          // Ask for payment mode if payment is completed
           Swal.fire({
             title: 'Select Payment Mode',
             input: 'radio',
@@ -77,10 +106,9 @@ getUrgencyColor(urgency: string): string {
               return undefined;
             },
             showCancelButton: true,
-            cancelButtonText: 'Cancel' // Back button to return to the previous step
+            cancelButtonText: 'Cancel'
           }).then((paymentModeResult) => {
             if (paymentModeResult.isConfirmed) {
-              // If payment mode is selected, ask for the amount paid
               Swal.fire({
                 title: 'Enter Amount Paid',
                 input: 'number',
@@ -96,40 +124,39 @@ getUrgencyColor(urgency: string): string {
                   return undefined;
                 },
                 showCancelButton: true,
-                cancelButtonText: 'Back' // Back button to return to the previous step
+                cancelButtonText: 'Back'
               }).then((amountResult) => {
                 if (amountResult.isConfirmed) {
-                  // Log the final details
                   this.orderService.markDelivered(
-                    this.bottleReturned,
+                    this.adminId,
+                    returnedBottles,
                     selectedOrder,
                     'Paid',
                     paymentModeResult.value,
                     amountResult.value
-                  )
-                }else{
+                  );
+                } else {
                   event.source.checked = false;
                 }
               });
-            } else if (paymentModeResult.dismiss === Swal.DismissReason.cancel) {
-              // User clicked "Back", show the payment completion dialog again
-              // this.markAsDelivered(,selectedOrder);
+            } else {
               event.source.checked = false;
             }
           });
         } else {
-          // If payment is not completed
           this.orderService.markDelivered(
-            this.bottleReturned,
+            this.adminId,
+            returnedBottles,
             selectedOrder,
             'Not Paid',
             '',
             0
-          )
+          );
         }
       });
-    }
+    });
   }
+}
 
 ngOnDestroy(): void {
   
