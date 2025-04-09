@@ -1,1 +1,18 @@
-<p>delivery-dashboard works!</p>
+
+<div class="delivery-dashboard">
+
+        <mat-toolbar t-toolbar class="top-toolbar">
+            <!-- <button mat-icon-button > -->
+            <!-- <mat-icon  *ngIf="!isMenuOpen"
+              style="color: black;cursor: pointer;">menu</mat-icon> -->
+            <!-- </button> -->
+            <span [ngStyle]="{'font-size':isMobile || isTab ? '.95rem':'1rem'}" class="dashboard-title">Delivery
+              Dashboard</span>
+            <span class="spacer"></span>
+            <!-- <span class="spacer"></span> -->
+            <!-- <button mat-button class="logout-button">Logout</button> -->
+          </mat-toolbar>
+
+          <app-delivery-order-list></app-delivery-order-list>
+
+</div>

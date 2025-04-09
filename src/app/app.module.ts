@@ -41,6 +41,7 @@ import {MatSelectModule} from '@angular/material/select';
 import { MatDialogModule } from '@angular/material/dialog';
 import { NewOrderModelComponent } from './features/dashboard/admin-dashboard/components/order-list/new-order-model/new-order-model.component';
 import {MatCheckboxModule} from '@angular/material/checkbox';
+import { DeliveryOrderListComponent } from './features/dashboard/delivery-dashboard/delivery-order-list/delivery-order-list.component';
 @NgModule({
     declarations:[
         AppComponent,
@@ -51,9 +52,11 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
         DashboardComponent,
         CustomerManagementComponent,
         ReportsComponent,
-        OrderListComponent,
         DeliveryStaffComponent,
-        NewOrderModelComponent
+        NewOrderModelComponent,
+        OrderListComponent, 
+        DeliveryOrderListComponent
+
     ], 
     imports:[
         MatCheckboxModule,

@@ -37,7 +37,8 @@ export class AuthService implements OnInit {
     const deliveryMan = { 
       email: email,
       role: role ,
-      adminId : adminId
+      adminId : adminId,
+      status: 'working'
       }
     await setDoc(userDocRef,deliveryMan);
 

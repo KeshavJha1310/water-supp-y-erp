@@ -10,6 +10,7 @@ import { OrderServiceService } from '../../core/services/order-service.service';
 })
 export class DashboardComponent implements OnInit {
   role: string | null = null;
+  status: string | null = null;
   isMobile = false;
   menuOpen = false;
 
@@ -25,6 +26,7 @@ export class DashboardComponent implements OnInit {
     if (userData) {
       console.log(userData)
       this.role = userData.role; 
+      this.status = userData.status;
     }
     this.checkScreenSize();
   const user = await this.userService.getCurrentUser();
