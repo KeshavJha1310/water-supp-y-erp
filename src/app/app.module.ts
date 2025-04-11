@@ -42,6 +42,9 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { NewOrderModelComponent } from './features/dashboard/admin-dashboard/components/order-list/new-order-model/new-order-model.component';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import { DeliveryOrderListComponent } from './features/dashboard/delivery-dashboard/delivery-order-list/delivery-order-list.component';
+import { MatExpansionModule } from '@angular/material/expansion';
+
+
 @NgModule({
     declarations:[
         AppComponent,
@@ -77,7 +80,8 @@ import { DeliveryOrderListComponent } from './features/dashboard/delivery-dashbo
         CommonModule,
         ReactiveFormsModule,
         MatSnackBarModule,
-        MatProgressSpinnerModule
+        MatProgressSpinnerModule,
+        MatExpansionModule
     ],
     providers:[
     provideHttpClient(),

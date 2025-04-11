@@ -1,1 +1,78 @@
-<p>customer-management works!</p>
+<div class="orders-container">
+    <div class="btn-wrapper">
+        <button mat-raised-button  
+            [ngStyle]="{'font-size': isMobile ? '.85rem' : '1rem'}" 
+            (click)="showAllCustomers = true; showDailyCustomers = false; showMonthlyCustomers = false">
+            All Customer
+        </button>
+        <button mat-raised-button 
+            [ngStyle]="{'font-size': isMobile ? '.85rem' : '1rem'}" 
+            (click)="showAllCustomers = false; showDailyCustomers = true; showMonthlyCustomers = false">
+            Daily Customer
+        </button>
+        <button mat-raised-button  
+            [ngStyle]="{'font-size': isMobile ? '.85rem' : '1rem'}" 
+            (click)="showAllCustomers = false; showDailyCustomers = false; showMonthlyCustomers = true">
+            Monthly Customer
+        </button>
+    </div>
+    <mat-card *ngIf="showAllCustomers" class="orders-list">
+        <mat-card-title class="text-center">All Customers</mat-card-title>
+      
+        <mat-accordion style="display: flex;flex-direction: column;gap: 10px;" *ngIf="allCustomers.length > 0; else noOrders" multi>
+          <mat-expansion-panel *ngFor="let customer of allCustomers">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                {{ customer.id }}
+              </mat-panel-title>
+              <!-- <mat-panel-description>
+              </mat-panel-description> -->
+            </mat-expansion-panel-header>
+      
+            <!-- Summary Info -->
+            <div class="summary-row">
+                <div><strong>Balance Due:</strong> ₹{{ customer.balanceDue }}</div>
+              <div><strong>Total Bottles:</strong> {{  customer.totalBottles }} Bottles  </div>
+              <div><strong>Bottles Returned:</strong> {{ customer.returned }}</div>
+              <div><strong>Bottles To Return:</strong> {{ customer.toReturn }}</div>
+                <div><strong>Total Paid:</strong> ₹{{ customer.totalPaid }}</div>
+            </div>
+      
+            <!-- Order List -->
+            <div class="order-list">
+              <div *ngFor="let order of customer.orders" class="order-card">
+                <div class="order-header">
+                  <span class="status-chip" [ngClass]="order.urgencyFlag">{{ order.urgencyFlag }}</span>
+                  <span class="order-date"><strong>
+                    {{ order.timestamp?.seconds * 1000 | date:'short' }}
+                  </strong>
+                </span>
+                </div>
+                <div class="order-body">
+                    <div><strong>Due:</strong> ₹ {{ order.payment?.paymentRemaining }}</div>
+                    <div><strong>Bottles Returned:</strong> {{ order.bottleReturned }}</div>
+                  <div><strong>Bottles Ordered:</strong> {{ order.noOfBottles }}</div>
+                  <div><strong>Bottles Rate:</strong>₹{{ order.payment?.perBottlePrice }}</div>
+                    <div><strong>Payment:</strong> ₹{{ order.payment.amountPaid }} / ₹{{ order.payment.totalToPaid }} ({{ order.payment.mode }})</div>
+                  <div><strong>Status:</strong> {{ order.status }}</div>
+                  <div><strong>Payment Date:</strong>  {{ order.payment.dateOfPayment.seconds * 1000 | date:'MMM d, y, h:mm a' }}</div>
+                  <!-- <div><strong>Order Date:</strong> {{ order.timestamp.seconds * 1000 | date:'MMM d, y, h:mm a' }}</div> -->
+                  <div><strong>Delivered Date:</strong> {{ order.timestamp.seconds * 1000 | date:'MMM d, y, h:mm a' }}</div>
+                </div>
+              </div>
+            </div>
+      
+            <div class="text-center" style="margin-top: 10px;">
+              <button mat-stroked-button color="primary" (click)="openCustomerDialog(customer)">
+                Edit Customer
+              </button>
+            </div>
+          </mat-expansion-panel>
+        </mat-accordion>
+      
+        <ng-template #noOrders>
+          <div class="no-orders text-center">No Customers Found</div>
+        </ng-template>
+      </mat-card>
+      
+</div>

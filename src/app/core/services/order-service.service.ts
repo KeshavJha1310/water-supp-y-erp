@@ -445,5 +445,54 @@ async markOnlyCompleted(orderId:any){
     console.log("Delivery and payment details updated successfully.");
 
   }
+
+  getAllCustomersWithOrderDetails(): Observable<any[]> {
+    return new Observable(observer => {
+      this.userService.getCurrentUser().then(user => {
+        if (!user?.uid) {
+          observer.next([]);
+          observer.complete();
+          return;
+        }
+  
+        const customersRef = collection(this.firestore, `users/${user.uid}/customers`);
+  
+        const unsubscribe = onSnapshot(customersRef, async snapshot => {
+          const customers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          console.log(customers);
+          const formattedCustomers = await Promise.all(
+            customers.map(async (customer: any) => {
+              console.log(customer.orders)
+
+              const orders = await this.getOrdersByIds(user.uid, customer.orders || []);
+              return {
+                id: customer.id,
+                totalBottles: customer.totalBottles || 0,
+                totalPaid: customer.totalPaid || 0,
+                balanceDue: customer.balanceDue || 0,
+                returned: customer.returned || 0,
+                toReturn: customer.toReturn || 0,
+                orders, // the full order documents
+              };
+            })
+          );
+          console.log('Formatted customers:', formattedCustomers);
+          observer.next(formattedCustomers);
+        });
+  
+        return () => unsubscribe();
+      });
+    });
+  }
+
+ async getOrdersByIds(userId: string, orderIds: string[]): Promise<any[]> {
+    return Promise.all(
+      orderIds.map(async (orderId: string) => {
+        const orderRef = doc(this.firestore, `users/${userId}/all-orders/${orderId}`);
+        const orderSnap = await getDoc(orderRef);
+        return orderSnap.exists() ? { id: orderSnap.id, ...orderSnap.data() } : null;
+      })
+    ).then(orders => orders.filter(order => order !== null));
+  }
   
 }
