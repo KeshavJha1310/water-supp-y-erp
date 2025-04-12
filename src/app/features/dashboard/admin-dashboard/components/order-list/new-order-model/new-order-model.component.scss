@@ -151,4 +151,8 @@
     background-size: contain;
     background-position: center;
   }
+  ::ng-deep .mat-mdc-select-panel {
+    width: 200px !important;
+    position: absolute !important;
+  }
   
