@@ -153,7 +153,7 @@ export class OrderListComponent implements OnInit{
     }
   }
 
-
+ 
   markAsCompleted(event: MatCheckboxChange,selectedOrder: any) {
     if(event.checked){
       if(selectedOrder.payment.done == 'Paid'){
