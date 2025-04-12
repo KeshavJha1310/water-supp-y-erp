@@ -513,5 +513,45 @@ async updateCustomerDetails(customerId:any, customerName:any, phoneNumber:any, t
     });
 
   }
+
+  async deleteOrder(orderId: any, address: any, order: any) {
+    const user = await this.userService.getCurrentUser();
+    if (!user?.uid) return;
+  
+    const orderRef = doc(this.firestore, `users/${user.uid}/all-orders/${orderId}`);
+    await deleteDoc(orderRef);
+  
+    const customerRef = doc(this.firestore, `users/${user.uid}/customers/${address}`);
+    const customerSnap = await getDoc(customerRef);
+  
+    if (customerSnap.exists()) {
+      const customerData = customerSnap.data();
+      const customerOrders = customerData['orders'] || [];
+  
+      console.log("Before deletion, orders array:", customerOrders);
+  
+      // Check if each item is an object with an `id` field
+      const updatedOrders = customerOrders.filter((orderObj: any) => {
+        if (typeof orderObj === 'string') {
+          return orderObj !== orderId;
+        } else if (orderObj?.id) {
+          return orderObj.id !== orderId;
+        }
+        return true; // if structure doesn't match, keep the entry to avoid accidental deletion
+      });
+  
+      console.log("After deletion, updated orders array:", updatedOrders);
+  
+      await updateDoc(customerRef, {
+        orders: updatedOrders,
+        totalBottles: (customerData['totalBottles'] || 0) - (order?.noOfBottles || 0),
+        toReturn: (customerData['toReturn'] || 0) - ((order?.noOfBottles || 0) - (order?.bottleReturned || 0)),
+        returned: (customerData['returned'] || 0) - (order?.bottleReturned || 0),
+        totalPaid: (customerData['totalPaid'] || 0) - (order?.payment?.amountPaid || 0),
+        balanceDue: (customerData['balanceDue'] || 0) - (order?.payment?.paymentRemaining || 0),
+      });
+    }
+  }
+  
   
 }

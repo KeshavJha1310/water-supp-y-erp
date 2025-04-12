@@ -54,6 +54,7 @@
                 <!-- <span class="actions"> -->
                     <mat-checkbox [checked]="order.status === 'delivered'" (change)="markAsDelivered($event, order)"></mat-checkbox>
                     <mat-checkbox [checked]="order.status === 'completed'" (change)="markAsCompleted($event,order)"></mat-checkbox>
+                    <mat-icon (click)="deleteOrder(order)" style="color: red;font-size:1.4rem;">delete</mat-icon>
                 <!-- </span> -->
             </div>
             
@@ -111,7 +112,7 @@
                 <span class="price">{{order.payment.done }}</span>
                 <span class="price">{{order.payment.mode }}</span>
                 <mat-checkbox [checked]="order.status === 'completed'" (change)="markAsCompleted($event,order)"></mat-checkbox>
-
+                <mat-icon>delete</mat-icon>
                   <!-- <span class="urgency" [ngClass]="order.urgencyFlag">{{ order.urgencyFlag | uppercase }}</span> -->
               </div>
           </mat-list-item>

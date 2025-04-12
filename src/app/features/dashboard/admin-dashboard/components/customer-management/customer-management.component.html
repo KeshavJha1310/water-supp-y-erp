@@ -52,15 +52,15 @@
                 </span>
                 </div>
                 <div class="order-body">
-                    <div><strong>Due:</strong> ₹ {{ order.payment?.paymentRemaining }}</div>
-                    <div><strong>Bottles Returned:</strong> {{ order.bottleReturned }}</div>
+                    <div *ngIf="order.status !== 'pending'"><strong>Due:</strong> ₹ {{ order.payment?.paymentRemaining }}</div>
+                    <div *ngIf="order.status !== 'pending'"><strong>Bottles Returned:</strong> {{ order.bottleReturned }}</div>
                   <div><strong>Bottles Ordered:</strong> {{ order.noOfBottles }}</div>
                   <div><strong>Bottles Rate:</strong>₹{{ order.payment?.perBottlePrice }}</div>
-                    <div><strong>Payment:</strong> ₹{{ order.payment.amountPaid }} / ₹{{ order.payment.totalToPaid }} ({{ order.payment.mode }})</div>
+                    <div *ngIf="order.status !== 'pending'"><strong>Payment:</strong> ₹{{ order.payment.amountPaid }} / ₹{{ order.payment.totalToPaid }} ({{ order.payment.mode }})</div>
                   <div><strong>Status:</strong> {{ order.status }}</div>
-                  <div><strong>Payment Date:</strong>  {{ order.payment.dateOfPayment.seconds * 1000 | date:'MMM d, y, h:mm a' }}</div>
+                  <div *ngIf="order.status !== 'pending'"><strong>Payment Date:</strong>  {{ order.payment.dateOfPayment.seconds * 1000 | date:'MMM d, y, h:mm a' }}</div>
                   <!-- <div><strong>Order Date:</strong> {{ order.timestamp.seconds * 1000 | date:'MMM d, y, h:mm a' }}</div> -->
-                  <div><strong>Delivered Date:</strong> {{ order.timestamp.seconds * 1000 | date:'MMM d, y, h:mm a' }}</div>
+                  <div *ngIf="order.status !== 'pending'"><strong>Delivered Date:</strong> {{ order.timestamp.seconds * 1000 | date:'MMM d, y, h:mm a' }}</div>
                 </div>
               </div>
             </div>
