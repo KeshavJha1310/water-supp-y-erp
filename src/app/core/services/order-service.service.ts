@@ -6,6 +6,7 @@ import { Firestore, collection, addDoc, collectionData, doc, updateDoc, onSnapsh
 import { Auth, Config, User } from '@angular/fire/auth';
 import { serverTimestamp } from '@angular/fire/firestore';
 import { deleteDoc, getDocs } from 'firebase/firestore';
+import e from 'express';
 
 @Injectable({
   providedIn: 'root'
@@ -463,8 +464,13 @@ async markOnlyCompleted(orderId:any){
           const formattedCustomers = await Promise.all(
             customers.map(async (customer: any) => {
               console.log(customer.orders)
-
+              let typeOfCustomer:any;
               const orders = await this.getOrdersByIds(user.uid, customer.orders || []);
+              if(customer.typeOfCustomer){
+                typeOfCustomer = customer.typeOfCustomer;
+              }else{
+                typeOfCustomer = false;
+              }
               return {
                 id: customer.id,
                 totalBottles: customer.totalBottles || 0,
@@ -472,6 +478,7 @@ async markOnlyCompleted(orderId:any){
                 balanceDue: customer.balanceDue || 0,
                 returned: customer.returned || 0,
                 toReturn: customer.toReturn || 0,
+                typeOfCustomer: typeOfCustomer,
                 orders, // the full order documents
               };
             })
@@ -493,6 +500,18 @@ async markOnlyCompleted(orderId:any){
         return orderSnap.exists() ? { id: orderSnap.id, ...orderSnap.data() } : null;
       })
     ).then(orders => orders.filter(order => order !== null));
+  }
+
+async updateCustomerDetails(customerId:any, customerName:any, phoneNumber:any, typeOfCustomer:any) {
+    const user = await this.userService.getCurrentUser();
+    if (!user?.uid) return;
+    const customerRef = doc(this.firestore, `users/${user.uid}/customers/${customerId}`);
+    return updateDoc(customerRef, {
+      name: customerName,
+      phoneNumber: phoneNumber,
+      typeOfCustomer: typeOfCustomer
+    });
+
   }
   
 }

@@ -1,0 +1,35 @@
+<mat-dialog-content>
+    <mat-card-title>{{ customerId }}</mat-card-title>
+    <form>
+      <div class="form-group">
+        <mat-form-field appearance="fill">
+          <mat-label>Customer Name</mat-label>
+          <input matInput [(ngModel)]="customerName" name="customerName" type="text" id="customerName" placeholder="Enter customer name" />
+        </mat-form-field>
+      </div>
+  
+      <div class="form-group">
+        <mat-form-field appearance="fill">
+          <mat-label>Phone Number</mat-label>
+          <input matInput [(ngModel)]="phneNumber" name="phoneNumber" type="tel" id="phoneNumber" placeholder="Enter phone number" />
+        </mat-form-field>
+      </div>
+  
+      <div class="form-group">
+        <mat-form-field appearance="fill">
+          <mat-label>Type of Customer</mat-label>
+          <mat-select [(ngModel)]="typeOfCustomer" name="typeOfCustomer" id="typeOfCustomer" required>
+            <mat-option value="" disabled>Select customer type</mat-option>
+            <mat-option value="daily">Daily</mat-option>
+            <mat-option value="monthly">Monthly</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+  
+      <div class="form-group">
+        <button mat-raised-button color="primary" (click)="submitCustomerDetails()" type="submit">Submit</button>
+        <button mat-raised-button  color="primary" type="button" style="color: red;" (click)="dialogRef.close()">Cancel</button>
+      </div>
+    </form>
+  </mat-dialog-content>
+  

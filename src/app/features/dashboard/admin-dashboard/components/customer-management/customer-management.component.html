@@ -31,7 +31,10 @@
       
             <!-- Summary Info -->
             <div class="summary-row">
-                <div><strong>Balance Due:</strong> ₹{{ customer.balanceDue }}</div>
+                <div  [ngStyle]="{
+                    color: customer.balanceDue === 0 ? 'black' : 
+                           (customer.balanceDue < 0 ? 'green' : 'red')
+                  }"><strong>Balance Due:</strong> ₹{{ customer.balanceDue }}</div>
               <div><strong>Total Bottles:</strong> {{  customer.totalBottles }} Bottles  </div>
               <div><strong>Bottles Returned:</strong> {{ customer.returned }}</div>
               <div><strong>Bottles To Return:</strong> {{ customer.toReturn }}</div>
@@ -63,7 +66,7 @@
             </div>
       
             <div class="text-center" style="margin-top: 10px;">
-              <button mat-stroked-button color="primary" (click)="openCustomerDialog(customer)">
+              <button mat-stroked-button color="primary" (click)="openCustomerDialog(customer.id)">
                 Edit Customer
               </button>
             </div>

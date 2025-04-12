@@ -43,7 +43,7 @@ import { NewOrderModelComponent } from './features/dashboard/admin-dashboard/com
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import { DeliveryOrderListComponent } from './features/dashboard/delivery-dashboard/delivery-order-list/delivery-order-list.component';
 import { MatExpansionModule } from '@angular/material/expansion';
-
+import { EditCustomerModelComponent } from './features/dashboard/admin-dashboard/components/customer-management/edit-customer-model/edit-customer-model.component';
 
 @NgModule({
     declarations:[
@@ -58,8 +58,8 @@ import { MatExpansionModule } from '@angular/material/expansion';
         DeliveryStaffComponent,
         NewOrderModelComponent,
         OrderListComponent, 
-        DeliveryOrderListComponent
-
+        DeliveryOrderListComponent,
+        EditCustomerModelComponent
     ], 
     imports:[
         MatCheckboxModule,

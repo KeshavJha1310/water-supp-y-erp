@@ -222,16 +222,17 @@ export class OrderListComponent implements OnInit{
                 event.source.checked = false;
               }
             });
-          } else {
-            // If payment is not completed
-            this.orderService.markOrderAsCompleted(
-              this.bottleReturned,
-              selectedOrder,
-              'Not Paid',
-              '',
-              0
-            )
-          }
+          } 
+          // else {
+          //   // If payment is not completed
+          //   this.orderService.markOrderAsCompleted(
+          //     this.bottleReturned,
+          //     selectedOrder,
+          //     'Not Paid',
+          //     '',
+          //     0
+          //   )
+          // }
         });
       }
     }
