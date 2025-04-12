@@ -97,7 +97,7 @@
         <!-- <span class="header-item">{{isMobile?'D':'Done'}}</span> -->
         <span class="header-item">{{isMobile?'C':'Close'}}</span>
     </div>    
-      <mat-list *ngIf="deliveredOrders.length > 0; else noOrders">
+      <mat-list  *ngIf="deliveredOrders.length > 0; else noOrders">
           <mat-list-item *ngFor="let order of deliveredOrders">
               <div [ngStyle]="{ 'background-color': getUrgencyColor(order.urgencyFlag) }" class="order-details">
                   <span class="address">{{ order.address }}</span>
