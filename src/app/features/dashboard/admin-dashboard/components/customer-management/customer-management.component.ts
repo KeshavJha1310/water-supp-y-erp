@@ -405,8 +405,8 @@ generateInvoice(customerId: any): void {
       totalAmountDue += order.payment.paymentRemaining;
     });
 
-    addText(`Total Paid: ₹${totalAmountPaid.toFixed(2)}`, 14, true, 'left');
-    addText(`Total Due: ₹${totalAmountDue.toFixed(2)}`, 14, true, 'left');
+    addText(`Total Paid: rs. ${totalAmountPaid.toFixed(2)}`, 14, true, 'left');
+    addText(`Total Due: rs. ${totalAmountDue.toFixed(2)}`, 14, true, 'left');
     yPosition += 10;
 
     // --- Table Header ---
@@ -434,8 +434,8 @@ generateInvoice(customerId: any): void {
         order.payment.perBottlePrice.toString(),
         order.status,
         order.payment.totalToPaid.toString(),
-        `₹${order.payment.amountPaid.toFixed(2)}`,
-        `₹${order.payment.paymentRemaining.toFixed(2)}`,
+        `rs. ${order.payment.amountPaid.toFixed(2)}`,
+        `rs. ${order.payment.paymentRemaining.toFixed(2)}`,
       ];
       rowData.forEach((data, index) => {
         pdf.text(data, xOffset, yPosition);
