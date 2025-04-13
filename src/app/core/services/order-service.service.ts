@@ -299,6 +299,7 @@ export class OrderServiceService implements OnInit {
         paymentRemaining: paymentRemaining,
         dateOfPayment: serverTimestamp(),
       },
+      deliveryDate: serverTimestamp(),
       bottleReturned: Number(bottleReturned),
     });
   

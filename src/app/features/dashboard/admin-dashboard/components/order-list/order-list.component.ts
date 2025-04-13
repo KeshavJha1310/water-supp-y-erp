@@ -72,87 +72,94 @@ export class OrderListComponent implements OnInit{
   }
   
 
-  markAsDelivered(event: MatCheckboxChange,selectedOrder: any) {
-    if(event.checked){
+  markAsDelivered(event: MatCheckboxChange, selectedOrder: any) {
+    if (event.checked) {
       Swal.fire({
-        title: 'Is the payment completed?',
-        icon: 'question',
+        title: 'Proceed with delivery done process?',
+        text: 'Are you sure you want to mark this order as delivered?',
+        icon: 'warning',
         showCancelButton: true,
-        confirmButtonText: 'Yes',
-        cancelButtonText: 'No'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          // Ask for payment mode if payment is completed
+        confirmButtonText: 'Yes, proceed',
+        cancelButtonText: 'Cancel'
+      }).then((initialResult) => {
+        if (initialResult.isConfirmed) {
           Swal.fire({
-            title: 'Select Payment Mode',
-            input: 'radio',
-            inputOptions: {
-              online: 'Online',
-              cash: 'Cash'
-            },
-            inputValidator: (value) => {
-              if (!value) {
-                return 'You need to select a payment mode!';
-              }
-              return undefined;
-            },
+            title: 'Is the payment completed?',
+            icon: 'question',
             showCancelButton: true,
-            cancelButtonText: 'Cancel' // Back button to return to the previous step
-          }).then((paymentModeResult) => {
-            if (paymentModeResult.isConfirmed) {
-              // If payment mode is selected, ask for the amount paid
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No'
+          }).then((result) => {
+            if (result.isConfirmed) {
               Swal.fire({
-                title: 'Enter Amount Paid',
-                input: 'number',
-                inputPlaceholder: 'Enter the amount',
-                inputAttributes: {
-                  min: '0',
-                  step: '1'
+                title: 'Select Payment Mode',
+                input: 'radio',
+                inputOptions: {
+                  online: 'Online',
+                  cash: 'Cash'
                 },
                 inputValidator: (value) => {
-                  if (!value || isNaN(Number(value)) || Number(value) <= 0) {
-                    return 'Please enter a valid amount!';
+                  if (!value) {
+                    return 'You need to select a payment mode!';
                   }
                   return undefined;
                 },
                 showCancelButton: true,
-                cancelButtonText: 'Back' // Back button to return to the previous step
-              }).then((amountResult) => {
-                if (amountResult.isConfirmed) {
-                  // Log the final details
-                  this.orderService.markDelivered(
-                    this.adminId,
-                    this.bottleReturned,
-                    selectedOrder,
-                    'Paid',
-                    paymentModeResult.value,
-                    amountResult.value
-                  )
-                }else{
+                cancelButtonText: 'Cancel'
+              }).then((paymentModeResult) => {
+                if (paymentModeResult.isConfirmed) {
+                  Swal.fire({
+                    title: 'Enter Amount Paid',
+                    input: 'number',
+                    inputPlaceholder: 'Enter the amount',
+                    inputAttributes: {
+                      min: '0',
+                      step: '1'
+                    },
+                    inputValidator: (value) => {
+                      if (!value || isNaN(Number(value)) || Number(value) <= 0) {
+                        return 'Please enter a valid amount!';
+                      }
+                      return undefined;
+                    },
+                    showCancelButton: true,
+                    cancelButtonText: 'Back'
+                  }).then((amountResult) => {
+                    if (amountResult.isConfirmed) {
+                      this.orderService.markDelivered(
+                        this.adminId,
+                        this.bottleReturned,
+                        selectedOrder,
+                        'Paid',
+                        paymentModeResult.value,
+                        amountResult.value
+                      );
+                    } else {
+                      event.source.checked = false;
+                    }
+                  });
+                } else if (paymentModeResult.dismiss === Swal.DismissReason.cancel) {
                   event.source.checked = false;
                 }
               });
-            } else if (paymentModeResult.dismiss === Swal.DismissReason.cancel) {
-              // User clicked "Back", show the payment completion dialog again
-              // this.markAsDelivered(,selectedOrder);
-              event.source.checked = false;
+            } else {
+              this.orderService.markDelivered(
+                this.adminId,
+                this.bottleReturned,
+                selectedOrder,
+                'Not Paid',
+                '',
+                0
+              );
             }
           });
         } else {
-          // If payment is not completed
-          this.orderService.markDelivered(
-            this.adminId,
-            this.bottleReturned,
-            selectedOrder,
-            'Not Paid',
-            '',
-            0
-          )
+          event.source.checked = false;
         }
       });
     }
   }
-
+  
  
   markAsCompleted(event: MatCheckboxChange,selectedOrder: any) {
     if(event.checked){

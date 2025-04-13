@@ -60,7 +60,7 @@
                   <div><strong>Status:</strong> {{ order.status }}</div>
                   <div *ngIf="order.status !== 'pending'"><strong>Payment Date:</strong>  {{ order.payment.dateOfPayment.seconds * 1000 | date:'MMM d, y, h:mm a' }}</div>
                   <!-- <div><strong>Order Date:</strong> {{ order.timestamp.seconds * 1000 | date:'MMM d, y, h:mm a' }}</div> -->
-                  <div *ngIf="order.status !== 'pending'"><strong>Delivered Date:</strong> {{ order.timestamp.seconds * 1000 | date:'MMM d, y, h:mm a' }}</div>
+                  <div *ngIf="order.status !== 'pending'"><strong>Delivered Date:</strong> {{ order.deliveryDate?.seconds * 1000 | date:'MMM d, y, h:mm a' }}</div>
                 </div>
               </div>
             </div>
@@ -78,4 +78,14 @@
         </ng-template>
       </mat-card>
       
+    <mat-card *ngIf="showMonthlyCustomers" class="orders-list">
+        <mat-card-title class="text-center">Monthly Customers</mat-card-title>
+        <mat-accordion style="display: flex;flex-direction: column;gap: 10px;" *ngIf="monthlyCustomers.length > 0;else noMonthlyCustomers" multi>
+
+        </mat-accordion>
+        <ng-template #noMonthlyCustomers>
+            <div class="no-orders text-center">No Customers Found</div>
+          </ng-template>
+    </mat-card>
+    
 </div>
