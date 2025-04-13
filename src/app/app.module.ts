@@ -44,6 +44,9 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 import { DeliveryOrderListComponent } from './features/dashboard/delivery-dashboard/delivery-order-list/delivery-order-list.component';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { EditCustomerModelComponent } from './features/dashboard/admin-dashboard/components/customer-management/edit-customer-model/edit-customer-model.component';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatCalendar } from '@angular/material/datepicker';
 
 @NgModule({
     declarations:[
@@ -62,6 +65,8 @@ import { EditCustomerModelComponent } from './features/dashboard/admin-dashboard
         EditCustomerModelComponent
     ], 
     imports:[
+        MatNativeDateModule,
+        MatDatepickerModule,
         MatCheckboxModule,
         MatDialogModule,
         MatSelectModule,
@@ -98,6 +103,9 @@ import { EditCustomerModelComponent } from './features/dashboard/admin-dashboard
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideHttpClient()
+    ],
+    exports:[
+        MatCalendar,
     ],
     bootstrap:[AppComponent]
 })

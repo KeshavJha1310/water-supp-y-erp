@@ -5,21 +5,28 @@
             (click)="showAllCustomers = true; showDailyCustomers = false; showMonthlyCustomers = false">
             All Customer
         </button>
+
+        <button mat-raised-button  
+        [ngStyle]="{'font-size': isMobile ? '.85rem' : '1rem'}" 
+        (click)="showAllCustomers = false; showDailyCustomers = false; showMonthlyCustomers = true">
+        Monthly Customer
+        </button>
+
         <button mat-raised-button 
             [ngStyle]="{'font-size': isMobile ? '.85rem' : '1rem'}" 
             (click)="showAllCustomers = false; showDailyCustomers = true; showMonthlyCustomers = false">
             Daily Customer
         </button>
-        <button mat-raised-button  
-            [ngStyle]="{'font-size': isMobile ? '.85rem' : '1rem'}" 
-            (click)="showAllCustomers = false; showDailyCustomers = false; showMonthlyCustomers = true">
-            Monthly Customer
-        </button>
     </div>
     <mat-card *ngIf="showAllCustomers" class="orders-list">
         <mat-card-title class="text-center">All Customers</mat-card-title>
       
-        <mat-accordion style="display: flex;flex-direction: column;gap: 10px;" *ngIf="allCustomers.length > 0; else noOrders" multi>
+        <mat-accordion 
+        style="display: flex;
+        flex-direction: column;
+        gap: 10px;"
+        *ngIf="allCustomers.length > 0; else noOrders"
+        multi>
           <mat-expansion-panel *ngFor="let customer of allCustomers">
             <mat-expansion-panel-header>
               <mat-panel-title>
@@ -78,14 +85,128 @@
         </ng-template>
       </mat-card>
       
-    <mat-card *ngIf="showMonthlyCustomers" class="orders-list">
+    <!-- <mat-card *ngIf="showMonthlyCustomers" class="orders-list">
         <mat-card-title class="text-center">Monthly Customers</mat-card-title>
-        <mat-accordion style="display: flex;flex-direction: column;gap: 10px;" *ngIf="monthlyCustomers.length > 0;else noMonthlyCustomers" multi>
-
+        
+        <mat-accordion 
+        style="display: flex;
+        flex-direction: column;
+        gap: 10px;" 
+        *ngIf="monthlyCustomers.length > 0;else noMonthlyCustomers" 
+        multi>
+        <mat-expansion-panel *ngFor="let customer of monthlyCustomers">
+            <mat-expansion-panel-header>
+                <mat-panel-title>
+                    {{ customer.id }}
+                </mat-panel-title>
+            </mat-expansion-panel-header>
+        </mat-expansion-panel>
         </mat-accordion>
         <ng-template #noMonthlyCustomers>
             <div class="no-orders text-center">No Customers Found</div>
           </ng-template>
-    </mat-card>
+    </mat-card> -->
+  
+    <mat-card *ngIf="showMonthlyCustomers" class="orders-list">
+        <mat-card-title class="text-center">Monthly Customers</mat-card-title>
+      
+        <mat-accordion
+          style="display: flex; flex-direction: column; gap: 10px;"
+          *ngIf="monthlyCustomers.length > 0; else noMonthlyCustomers"
+          multi
+        >
+          <mat-expansion-panel *ngFor="let customer of monthlyCustomers">
+            <mat-expansion-panel-header>
+              <mat-panel-title>{{ customer.id }}</mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="summary-row">
+              <div  [ngStyle]="{
+                  color: customer.balanceDue === 0 ? 'black' : 
+                         (customer.balanceDue < 0 ? 'green' : 'red')
+                }"><strong>Balance Due:</strong> ₹{{ customer.balanceDue }}</div>
+            <div><strong>Total Bottles:</strong> {{  customer.totalBottles }} Bottles  </div>
+            <div><strong>Bottles Returned:</strong> {{ customer.returned }}</div>
+            <div><strong>Bottles To Return:</strong> {{ customer.toReturn }}</div>
+              <div><strong>Total Paid:</strong> ₹{{ customer.totalPaid }}</div>
+          </div>
+          <button mat-raised-button color="primary" (click)="generateInvoice(customer)">
+            Generate Invoice
+          </button>
+            <!-- Compact Calendar Card -->
+            <mat-card class="calendar-card">
+              <mat-calendar
+                class="mini-calendar"
+                [dateClass]="getHighlightClass.bind(this, customer)"
+                (selectedChange)="onDateSelected($event, customer)"
+              >
+              </mat-calendar>
+            </mat-card>
+      
+            <!-- Selected Order Details -->
+         <div *ngIf="selectedOrders[customer.id] && selectedOrders[customer.id].length > 0" class="order-details">
+  <h4 class="text-center">Orders on {{ selectedDate[customer.id] | date:'fullDate' }}</h4>
+
+  <div *ngFor="let order of selectedOrders[customer.id]" class="order-box">
+    <p><strong>Order Date:</strong> {{ getDate(order?.timestamp) }}</p>
+    <p><strong>Order Time:</strong> {{ getTime(order?.timestamp) }}</p>
+    <p><strong>Bottles Ordered:</strong> {{ order?.noOfBottles }}</p>
+    <p><strong>Status:</strong> {{ order?.status }}</p>
+    <p><strong>Bottles Returned:</strong> {{ order?.bottleReturned }}</p>
+
+    <div *ngIf="order?.payment">
+      <p><strong>Payment Done:</strong> {{ order.payment.done }}</p>
+      <p><strong>Amount Paid:</strong> ₹{{ order.payment.amountPaid }}</p>
+      <p><strong>Total To Be Paid:</strong> ₹{{ order.payment.totalToPaid }}</p>
+      <p><strong>Remaining Payment:</strong> ₹{{ order.payment.paymentRemaining }}</p>
+      <p><strong>Payment Mode:</strong> {{ order.payment.mode }}</p>
+      <p><strong>Payment Date:</strong> {{ getDate(order.payment.dateOfPayment) }}</p>
+      <p><strong>Payment Time:</strong> {{ getTime(order.payment.dateOfPayment) }}</p>
+    </div>
+  </div>
+</div>
+
+<div id="invoice-section"></div>
+
+
+          </mat-expansion-panel>
+        </mat-accordion>
+      
+        <ng-template #noMonthlyCustomers>
+          <div class="no-orders text-center">No Customers Found</div>
+        </ng-template>
+      </mat-card>
+      
+   
+     <!-- Invoice Template (Hidden but printable) -->
+<!-- <div #invoiceContainer style="display: none;">
+  <h2>Monthly Invoice</h2>
+  <p><strong>Customer ID:</strong> {{ selectedCustomer?.id }}</p>
+  <p><strong>Month:</strong> {{ selectedInvoiceMonth }}</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Bottles</th>
+        <th>Paid</th>
+        <th>Due</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let order of selectedCustomerOrders">
+        <td>{{ getDate(order.timestamp) }}</td>
+        <td>{{ order.noOfBottles }}</td>
+        <td>₹{{ order.payment?.amountPaid }}</td>
+        <td>₹{{ order.payment?.paymentRemaining }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Total Bottles:</strong> {{ invoiceTotals.totalBottles }}</p>
+  <p><strong>Total Paid:</strong> ₹{{ invoiceTotals.totalPaid }}</p>
+  <p><strong>Balance:</strong> ₹{{ invoiceTotals.balance }}</p>
+</div> -->
+
+      
     
 </div>
