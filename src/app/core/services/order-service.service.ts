@@ -254,8 +254,90 @@ export class OrderServiceService implements OnInit {
     console.log('All orders deleted successfully.');
   }
 
+  // async markDelivered(
+  //   adminUid:any,
+  //   bottleReturned: number,
+  //   selectedOrder: any,
+  //   paymentStatus: string,
+  //   paymentMode: string,
+  //   amountPaid: number
+  // ) {
+  //   const user = await this.userService.getCurrentUser();
+  //   if (!user?.uid || !selectedOrder?.orderId) {
+  //     console.log("Missing user ID or order ID");
+  //     return;
+  //   }
+  
+  //   this.userID = adminUid;
+  
+  //   const orderRef = doc(this.firestore, `users/${this.userID}/all-orders/${selectedOrder.orderId}`);
+  //   const orderSnap = await getDoc(orderRef);
+  
+  
+  //   if (!orderSnap.exists()) {
+  //     console.log("Order not found");
+  //     return;
+  //   }
+
+  //   const customerRef = doc(this.firestore, `users/${this.userID}/customers/${selectedOrder.address}`);
+  //   const customerSnap = await getDoc(customerRef);
+  
+  //   if (!customerSnap.exists()) {
+  //     console.log("Customer not found");
+  //     return;
+  //   }
+
+  //   const customerData = customerSnap.data();
+
+
+  
+  //   const orderData = orderSnap.data();
+  //   console.log("orderData",orderData)
+  //   const previousAmountPaid = Number(orderData?.['payment']?.amountPaid);
+  //   console.log("previousAmountPaid",previousAmountPaid)
+  //   const newAmountPaid = Number(amountPaid);
+  //   console.log("newAmountPaid",newAmountPaid)
+  //   const totalToPay = Number(orderData?.['payment']?.totalToPaid);
+  //   console.log("totalToPay",totalToPay)
+  //   const updatedAmountPaid = previousAmountPaid + newAmountPaid;
+  //   const paymentRemaining = totalToPay - updatedAmountPaid 
+  //   console.log(paymentRemaining)
+  //   await updateDoc(orderRef, {
+  //     status: "delivered",
+  //     payment: {
+  //       ...(orderData?.['payment'] || {}),
+  //       done: paymentStatus,
+  //       mode: paymentMode,
+  //       amountPaid: updatedAmountPaid,
+  //       paymentRemaining: paymentRemaining,
+  //       dateOfPayment: serverTimestamp(),
+  //     },
+  //     deliveryDate: serverTimestamp(),
+  //     bottleReturned: Number(bottleReturned),
+  //   });
+  
+  
+  //   const previousTotalPaid = Number(customerData?.['totalPaid'] || 0);
+  //   const previousTotalToPaid = Number(customerData?.['balanceDue'] || 0);
+  //   const previousReturned = Number(customerData?.['returned'] || 0);
+  //   const previousToReturn = Number(customerData?.['toReturn'] || 0);
+  
+  //   const updatedTotalPaid = previousTotalPaid + newAmountPaid;
+  //   const updatedToReturn = Math.max(previousToReturn - Number(bottleReturned), 0);
+  //   const updatedBalanceDue = previousTotalToPaid + paymentRemaining;
+  
+  //   await updateDoc(customerRef, {
+  //     returned: previousReturned + Number(bottleReturned),
+  //     toReturn: updatedToReturn,
+  //     totalPaid: updatedTotalPaid,
+  //     balanceDue: updatedBalanceDue,
+  //   });
+  
+  //   console.log("Delivery and payment details updated successfully.");
+  // }
+
   async markDelivered(
-    adminUid:any,
+    adminUid: any,
     bottleReturned: number,
     selectedOrder: any,
     paymentStatus: string,
@@ -278,17 +360,56 @@ export class OrderServiceService implements OnInit {
       return;
     }
   
+    const customerRef = doc(this.firestore, `users/${this.userID}/customers/${selectedOrder.address}`);
+    const customerSnap = await getDoc(customerRef);
+  
+    if (!customerSnap.exists()) {
+      console.log("Customer not found");
+      return;
+    }
+  
+    const customerData = customerSnap.data();
+    const isMonthly = customerData?.['typeOfCustomer'] === 'monthly';
+  
     const orderData = orderSnap.data();
-    console.log("orderData",orderData)
+  
+    if (isMonthly) {
+      const totalToPay = Number(orderData?.['payment']?.totalToPaid || 0);
+      const previousReturned = Number(customerData?.['returned'] || 0);
+      const previousToReturn = Number(customerData?.['toReturn'] || 0);
+      const previousBalanceDue = Number(customerData?.['balanceDue'] || 0);
+  
+      await updateDoc(orderRef, {
+        status: "completed",
+        payment: {
+          ...(orderData?.['payment'] || {}),
+          done: "Not Paid",
+          mode: "",
+          amountPaid: 0,
+          paymentRemaining: totalToPay,
+          dateOfPayment: serverTimestamp(),
+        },
+        deliveryDate: serverTimestamp(),
+        bottleReturned: Number(bottleReturned),
+      });
+  
+      await updateDoc(customerRef, {
+        returned: previousReturned + Number(bottleReturned),
+        toReturn: Math.max(previousToReturn - Number(bottleReturned), 0),
+        balanceDue: previousBalanceDue + totalToPay,
+      });
+  
+      console.log("Monthly customer order marked as completed.");
+      return;
+    }
+  
+    // 🟢 Normal customers flow (untouched logic below)
     const previousAmountPaid = Number(orderData?.['payment']?.amountPaid);
-    console.log("previousAmountPaid",previousAmountPaid)
     const newAmountPaid = Number(amountPaid);
-    console.log("newAmountPaid",newAmountPaid)
     const totalToPay = Number(orderData?.['payment']?.totalToPaid);
-    console.log("totalToPay",totalToPay)
     const updatedAmountPaid = previousAmountPaid + newAmountPaid;
-    const paymentRemaining = totalToPay - updatedAmountPaid 
-    console.log(paymentRemaining)
+    const paymentRemaining = totalToPay - updatedAmountPaid;
+  
     await updateDoc(orderRef, {
       status: "delivered",
       payment: {
@@ -302,16 +423,6 @@ export class OrderServiceService implements OnInit {
       deliveryDate: serverTimestamp(),
       bottleReturned: Number(bottleReturned),
     });
-  
-    const customerRef = doc(this.firestore, `users/${this.userID}/customers/${selectedOrder.address}`);
-    const customerSnap = await getDoc(customerRef);
-  
-    if (!customerSnap.exists()) {
-      console.log("Customer not found");
-      return;
-    }
-  
-    const customerData = customerSnap.data();
   
     const previousTotalPaid = Number(customerData?.['totalPaid'] || 0);
     const previousTotalToPaid = Number(customerData?.['balanceDue'] || 0);
@@ -331,6 +442,8 @@ export class OrderServiceService implements OnInit {
   
     console.log("Delivery and payment details updated successfully.");
   }
+  
+  
   
 async markOnlyCompleted(orderId:any){
     const user = await this.userService.getCurrentUser();

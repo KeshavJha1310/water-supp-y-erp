@@ -58,6 +58,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
         this.selectedComponent = 'orders';
       }
     })
+    // this.orderService.clearAllOrders();
   }
 
   openDialog(templateRef: TemplateRef<any>) {
