@@ -117,7 +117,7 @@ export class OrderListComponent implements OnInit{
                       step: '1'
                     },
                     inputValidator: (value) => {
-                      if (!value || isNaN(Number(value)) || Number(value) <= 0) {
+                      if (!value || isNaN(Number(value))) {
                         return 'Please enter a valid amount!';
                       }
                       return undefined;
