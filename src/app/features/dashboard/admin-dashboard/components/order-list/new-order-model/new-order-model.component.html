@@ -6,6 +6,17 @@
         <mat-form-field appearance="outline">
           <mat-label>Building</mat-label>
           <mat-select [(ngModel)]="addressStruct.buildingName">
+            <mat-option>
+              <input
+                type="text"
+                placeholder="Search building..."
+                [(ngModel)]="buildingFilter"
+                (ngModelChange)="filterBuildings()"
+                (click)="$event.stopPropagation()"
+                matInput
+                style="width: 100%; padding: 4px;"
+              />
+            </mat-option>
             <mat-option *ngFor="let buildings of buildingList" [value]='buildings'>{{buildings}}</mat-option>
           </mat-select>
         </mat-form-field>

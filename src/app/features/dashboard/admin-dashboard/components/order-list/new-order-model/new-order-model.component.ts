@@ -20,6 +20,8 @@ export class NewOrderModelComponent implements OnInit, OnDestroy {
   newOrder = { bottlesRequired: 1, deliveryAddress: this.formattedAddress, urgencyFlag: 'low' };
   buildingList = [];
   wingOptions: string[] = [];
+  filteredBuildings: any = [];
+  buildingFilter: string = '';
 
 
   ngOnInit(): void {
@@ -33,11 +35,20 @@ export class NewOrderModelComponent implements OnInit, OnDestroy {
 
     this.orderService.getAllBuildings().subscribe((buildingNames: any) => {
       if (buildingNames.length > 0)
-        this.buildingList = buildingNames
-      console.log(this.buildingList);
+        this.buildingList = buildingNames;
+          this.filteredBuildings = this.buildingFilter
+            console.log(this.buildingList);
     })
 
     // this.orderService.clearAllOrders();
+  }
+
+  filterBuildings() {
+    const filterValue = this.buildingFilter.toLowerCase();
+    console.log(filterValue);
+    this.filteredBuildings = this.buildingList.filter((building:any) =>
+      building.toLowerCase().includes(filterValue)
+    );
   }
 
   async addOrder() {
