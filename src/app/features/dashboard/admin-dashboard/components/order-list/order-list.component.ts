@@ -19,6 +19,7 @@ export class OrderListComponent implements OnInit{
   pendingOrders: any[] = [];
   completedOrders:any[] = [];
   deliveredOrders:any[] = [];
+  filteredDeliveredOrders: any[] = []; 
   showPending:boolean = true;
   showDelivered:boolean = false;
   showCompleted:boolean = false;
@@ -45,8 +46,24 @@ export class OrderListComponent implements OnInit{
       );
       this.completedOrders = orders.filter((order: any) => order.status === "completed");
       this.deliveredOrders = orders.filter((order: any) => order.status === "delivered");
-      console.log(this.deliveredOrders)
+      this.filteredDeliveredOrders = this.deliveredOrders;
+     
     })
+  }
+
+  filterOrdersByDate(event: any) {
+    const selectedDate = event.value;
+
+    this.filteredDeliveredOrders = this.deliveredOrders.filter(order => {
+      if (!order.deliveryDate) return false;
+      const deliveryDate = new Date(order.deliveryDate.seconds * 1000); // convert Firestore timestamp
+      return (
+        deliveryDate.getDate() === selectedDate.getDate() &&
+        deliveryDate.getMonth() === selectedDate.getMonth() &&
+        deliveryDate.getFullYear() === selectedDate.getFullYear()
+      );
+    });
+    console.log(this.filteredDeliveredOrders)
   }
 
   openOrderDialog() {

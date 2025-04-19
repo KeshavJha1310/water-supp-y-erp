@@ -5,6 +5,13 @@
     max-width: 700px;
     height: auto;
   }
+  .date-filter{
+    position: relative;
+    width: 100%;
+    display: flex;
+    margin: 0 auto;
+    background-color: transparent;
+  }
   .list-header {
   display: flex;
   font-weight: bold;

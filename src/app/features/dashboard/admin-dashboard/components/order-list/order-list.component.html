@@ -85,6 +85,12 @@
 
   <!-- Delivered Orders List -->
   <mat-card *ngIf="showDelivered" class="orders-list">
+    <mat-form-field appearance="outline" class="date-filter">
+        <mat-label>Filter by Delivery Date</mat-label>
+        <input matInput [matDatepicker]="picker" (dateChange)="filterOrdersByDate($event)" placeholder="Choose a date">
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
       <mat-card-title>Delivered Orders</mat-card-title>   
       <div class="list-header">
         <span class="header-item">Address</span>
@@ -98,8 +104,8 @@
         <!-- <span class="header-item">{{isMobile?'D':'Done'}}</span> -->
         <span class="header-item">{{isMobile?'C':'Close'}}</span>
     </div>    
-      <mat-list  *ngIf="deliveredOrders.length > 0; else noOrders">
-          <mat-list-item *ngFor="let order of deliveredOrders">
+      <mat-list  *ngIf="filteredDeliveredOrders.length > 0; else noOrders">
+          <mat-list-item *ngFor="let order of filteredDeliveredOrders">
               <div [ngStyle]="{ 'background-color': getUrgencyColor(order.urgencyFlag) }" class="order-details">
                   <span class="address">{{ order.address }}</span>
                   <span class="bottles">{{ order.noOfBottles }}</span>
