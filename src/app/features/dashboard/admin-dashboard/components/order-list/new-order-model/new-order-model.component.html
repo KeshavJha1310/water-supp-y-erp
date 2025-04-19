@@ -5,21 +5,27 @@
       <div class="address-wrapper">
         <mat-form-field appearance="outline">
           <mat-label>Building</mat-label>
-          <mat-select [(ngModel)]="addressStruct.buildingName">
+          <mat-select
+            [(ngModel)]="addressStruct.buildingName"
+            (openedChange)="filterBuildings()" 
+          >
             <mat-option>
               <input
+                matInput
                 type="text"
                 placeholder="Search building..."
                 [(ngModel)]="buildingFilter"
                 (ngModelChange)="filterBuildings()"
                 (click)="$event.stopPropagation()"
-                matInput
                 style="width: 100%; padding: 4px;"
               />
             </mat-option>
-            <mat-option *ngFor="let buildings of buildingList" [value]='buildings'>{{buildings}}</mat-option>
+            <mat-option *ngFor="let building of filteredBuildings" [value]="building">
+              {{ building }}
+            </mat-option>
           </mat-select>
         </mat-form-field>
+        
       
         <mat-form-field appearance="outline">
           <mat-label>Wing</mat-label>

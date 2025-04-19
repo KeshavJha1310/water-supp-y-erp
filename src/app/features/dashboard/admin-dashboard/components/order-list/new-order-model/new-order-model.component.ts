@@ -39,7 +39,7 @@ export class NewOrderModelComponent implements OnInit, OnDestroy {
           this.filteredBuildings = this.buildingFilter
             console.log(this.buildingList);
     })
-
+    this.filteredBuildings = this.buildingList.slice();
     // this.orderService.clearAllOrders();
   }
 
