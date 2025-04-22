@@ -2,7 +2,7 @@ import { inject, Injectable , OnInit } from '@angular/core';
 import { UserService } from './user.service';
 import { Observable } from 'rxjs/internal/Observable';
 import { BehaviorSubject, concatAll ,firstValueFrom, from, MonoTypeOperatorFunction, Subject} from 'rxjs';
-import { Firestore, collection, addDoc, collectionData, doc, updateDoc, onSnapshot, docData, getDoc, setDoc } from '@angular/fire/firestore';
+import { Firestore, collection, addDoc, collectionData, doc, updateDoc, onSnapshot, docData, getDoc, setDoc, writeBatch } from '@angular/fire/firestore';
 import { Auth, Config, User } from '@angular/fire/auth';
 import { serverTimestamp } from '@angular/fire/firestore';
 import { deleteDoc, getDocs } from 'firebase/firestore';
@@ -12,6 +12,7 @@ import e from 'express';
   providedIn: 'root'
 })
 export class OrderServiceService implements OnInit {
+
   private firestore = inject(Firestore); 
   private ordersSubject = new BehaviorSubject<any[]>([]);
   orders$ = this.ordersSubject.asObservable();
@@ -380,7 +381,7 @@ export class OrderServiceService implements OnInit {
       const previousBalanceDue = Number(customerData?.['balanceDue'] || 0);
   
       await updateDoc(orderRef, {
-        status: "completed",
+        status: "delivered",
         payment: {
           ...(orderData?.['payment'] || {}),
           done: "Not Paid",
@@ -442,8 +443,6 @@ export class OrderServiceService implements OnInit {
   
     console.log("Delivery and payment details updated successfully.");
   }
-  
-  
   
 async markOnlyCompleted(orderId:any){
     const user = await this.userService.getCurrentUser();
@@ -667,5 +666,109 @@ async updateCustomerDetails(customerId:any, customerName:any, phoneNumber:any, t
     }
   }
   
+
+  // async updateCustomerId(oldId: string, newId: string) {
+  //   const user = await this.userService.getCurrentUser();
+  //   if (!user?.uid) return;
+  
+  //   const oldCustomerRef = doc(this.firestore, `users/${user.uid}/customers/${oldId}`);
+  //   const newCustomerRef = doc(this.firestore, `users/${user.uid}/customers/${newId}`);
+  
+  //   const oldSnap = await getDoc(oldCustomerRef);
+  //   const newSnap = await getDoc(newCustomerRef);
+  
+  //   // 🚫 If old data doesn't exist, stop here
+  //   if (!oldSnap.exists()) {
+  //     console.error(`Customer with ID '${oldId}' not found.`);
+  //     return;
+  //   }
+  
+  //   const oldData = oldSnap.data();
+  //   const newData = newSnap.exists() ? newSnap.data() : null;
+  
+  //   // 🧠 Build merged data
+  //   const mergedData: any = {
+  //     ...newData, // Base: existing new customer (if any)
+  //     ...oldData, // Overwrite with old data where needed
+  //     orders: [
+  //       ...(Array.isArray(newData?.['orders']) ? newData['orders'] : []),
+  //       ...(Array.isArray(oldData?.['orders']) ? oldData['orders'] : [])
+  //     ],
+  //     returned: Math.max(newData?.['returned'] || 0, oldData?.['returned'] || 0), // Or sum them if that’s preferred
+  //     balanceDue: Math.max(newData?.['balanceDue'] || 0, oldData?.['balanceDue'] || 0), // Optional: sum or max
+  //     phoneNumber: oldData?.['phoneNumber'] || newData?.['phoneNumber'] || 0,
+  //     name: oldData?.['name'] || newData?.['name'] || '',
+  //     typeOfCustomer: oldData?.['typeOfCustomer'] || newData?.['typeOfCustomer'] || '',
+  //   };
+  
+  //   try {
+  //     await setDoc(newCustomerRef, mergedData, { merge: true }); // 🛠 Merge or create new doc
+  //     await deleteDoc(oldCustomerRef); // 🧹 Clean up old doc
+  
+  //     console.log(`Customer ID updated from '${oldId}' to '${newId}' successfully.`);
+  //   } catch (error) {
+  //     console.error("Error during customer ID update:", error);
+  //   }
+  // }
+
+  async updateCustomerId(oldId: string, newId: string) {
+    const user = await this.userService.getCurrentUser();
+    if (!user?.uid) return;
+  
+    const userRef = `users/${user.uid}`;
+    const oldCustomerRef = doc(this.firestore, `${userRef}/customers/${oldId}`);
+    const newCustomerRef = doc(this.firestore, `${userRef}/customers/${newId}`);
+  
+    const oldSnap = await getDoc(oldCustomerRef);
+    const newSnap = await getDoc(newCustomerRef);
+  
+    if (!oldSnap.exists()) {
+      console.error(`Old customer ID '${oldId}' does not exist.`);
+      return;
+    }
+  
+    const oldData = oldSnap.data();
+    const newData = newSnap.exists() ? newSnap.data() : null;
+  
+    const mergedData: any = {
+      ...newData,
+      ...oldData,
+      orders: [
+        ...(Array.isArray(newData?.['orders']) ? newData['orders'] : []),
+        ...(Array.isArray(oldData?.['orders']) ? oldData['orders'] : []),
+      ],
+      returned: Math.max(newData?.['returned'] || 0, oldData?.['returned'] || 0),
+      balanceDue: Math.max(newData?.['balanceDue'] || 0, oldData?.['balanceDue'] || 0),
+      phoneNumber: oldData?.['phoneNumber'] || newData?.['phoneNumber'] || 0,
+      name: oldData?.['name'] || newData?.['name'] || '',
+      typeOfCustomer: oldData?.['typeOfCustomer'] || newData?.['typeOfCustomer'] || '',
+    };
+  
+    try {
+      // 1. Merge the customer data into newId
+      await setDoc(newCustomerRef, mergedData, { merge: true });
+  
+      // 2. Use only the specific order IDs from the oldData
+      const batch = writeBatch(this.firestore);
+      const allOrdersRef = collection(this.firestore, `${userRef}/all-orders`);
+  
+      for (const orderId of oldData['orders'] || []) {
+        const orderRef = doc(allOrdersRef, orderId);
+        batch.update(orderRef, { address: newId });
+      }
+  
+      await batch.commit();
+  
+      // 3. Delete old customer
+      await deleteDoc(oldCustomerRef);
+  
+      console.log(`Successfully updated customer ID from '${oldId}' to '${newId}' and updated related orders.`);
+    } catch (err) {
+      console.error("Update failed:", err);
+    }
+  }
+  
+  
+
   
 }

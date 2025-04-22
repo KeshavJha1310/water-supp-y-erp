@@ -20,6 +20,7 @@ export class OrderListComponent implements OnInit{
   completedOrders:any[] = [];
   deliveredOrders:any[] = [];
   filteredDeliveredOrders: any[] = []; 
+  selectedDate: Date = new Date();
   showPending:boolean = true;
   showDelivered:boolean = false;
   showCompleted:boolean = false;
@@ -47,24 +48,28 @@ export class OrderListComponent implements OnInit{
       this.completedOrders = orders.filter((order: any) => order.status === "completed");
       this.deliveredOrders = orders.filter((order: any) => order.status === "delivered");
       this.filteredDeliveredOrders = this.deliveredOrders;
+      this.filterOrdersByDate({ value: this.selectedDate });
      
     })
   }
 
-  filterOrdersByDate(event: any) {
-    const selectedDate = event.value;
-
+  filterOrdersByDate(event: any = null) {
+    const selectedDate = event?.value || new Date(); // use current date if no event
+  
     this.filteredDeliveredOrders = this.deliveredOrders.filter(order => {
       if (!order.deliveryDate) return false;
-      const deliveryDate = new Date(order.deliveryDate.seconds * 1000); // convert Firestore timestamp
+  
+      const deliveryDate = new Date(order.deliveryDate.seconds * 1000); // Firestore timestamp
       return (
         deliveryDate.getDate() === selectedDate.getDate() &&
         deliveryDate.getMonth() === selectedDate.getMonth() &&
         deliveryDate.getFullYear() === selectedDate.getFullYear()
       );
     });
-    console.log(this.filteredDeliveredOrders)
+  
+    console.log(this.filteredDeliveredOrders);
   }
+  
 
   openOrderDialog() {
     const dialogRef = this.dialog.open(NewOrderModelComponent, {
@@ -210,11 +215,12 @@ export class OrderListComponent implements OnInit{
   markAsCompleted(event: MatCheckboxChange, selectedOrder: any) {
     if (event.checked) {
       const isPaymentDone = selectedOrder.payment.done === 'Paid';
+      console.log(selectedOrder.bottleReturned, selectedOrder.noOfBottles)
+      const isReturnedBottls = selectedOrder.bottleReturned !== selectedOrder.noOfBottles;
   
       const proceedWithCompletion = (returnedBottles: number) => {
         if (isPaymentDone) {
-          this.orderService.markDelivered(
-            this.adminId,
+          this.orderService.markOrderAsCompleted(
             returnedBottles,
             selectedOrder,
             'Paid',
@@ -265,8 +271,7 @@ export class OrderListComponent implements OnInit{
                     cancelButtonText: 'Back'
                   }).then((amountResult) => {
                     if (amountResult.isConfirmed) {
-                      this.orderService.markDelivered(
-                        this.adminId,
+                      this.orderService.markOrderAsCompleted(
                         returnedBottles,
                         selectedOrder,
                         'Paid',
@@ -294,44 +299,64 @@ export class OrderListComponent implements OnInit{
           });
         }
       };
-  
+      
       Swal.fire({
-        title: 'Were any bottles returned?',
-        icon: 'question',
+        title: 'Proceed with delivery complete process?',
+        text: 'Are you sure you want to mark this order as completed?',
+        icon: 'warning',
         showCancelButton: true,
-        confirmButtonText: 'Yes',
-        cancelButtonText: 'No'
-      }).then((bottleConfirm) => {
-        if (bottleConfirm.dismiss === Swal.DismissReason.cancel) {
-          proceedWithCompletion(0);
-        } else {
-          Swal.fire({
-            title: 'Enter Returned Bottles',
-            input: 'number',
-            inputPlaceholder: 'Returned bottles',
-            inputAttributes: {
-              min: '0',
-              step: '1'
-            },
-            inputValidator: (value) => {
-              if (!value || isNaN(Number(value)) || Number(value) < 0) {
-                return 'Enter a valid number!';
+        confirmButtonText: 'Yes, proceed',
+        cancelButtonText: 'Cancel'
+      }).then((initialResult) =>{
+        if (initialResult.isConfirmed) {
+          if(isReturnedBottls) {
+            Swal.fire({
+              title: 'Not all bottles returned',
+              icon: 'question',
+              showCancelButton: true,
+              confirmButtonText: 'Add returned bottles',
+              cancelButtonText: 'Skip'
+            }).then((bottleConfirm) => {
+              if (bottleConfirm.dismiss === Swal.DismissReason.cancel) {
+                proceedWithCompletion(selectedOrder.bottleReturned);
+              } else {
+                Swal.fire({
+                  title: 'Enter Returned Bottles',
+                  input: 'number',
+                  inputPlaceholder: 'Returned bottles',
+                  inputAttributes: {
+                    min: '0',
+                    step: '1'
+                  },
+                  inputValidator: (value) => {
+                    if (!value || isNaN(Number(value)) || Number(value) < 0 || Number(value) > selectedOrder.noOfBottles) {
+                      return 'Enter a valid number!';
+                    }
+                    return undefined;
+                  },
+                  showCancelButton: true,
+                  cancelButtonText: 'Cancel'
+                }).then((returnResult) => {
+                  if (!returnResult.isConfirmed) {
+                    event.source.checked = false;
+                    return;
+                  }
+        
+                  const returnedBottles = Number(returnResult.value || 0);
+                  const totalBottles = selectedOrder.bottleReturned + returnedBottles;
+                  proceedWithCompletion(totalBottles);
+                });
               }
-              return undefined;
-            },
-            showCancelButton: true,
-            cancelButtonText: 'Cancel'
-          }).then((returnResult) => {
-            if (!returnResult.isConfirmed) {
-              event.source.checked = false;
-              return;
-            }
-  
-            const returnedBottles = Number(returnResult.value || 0);
-            proceedWithCompletion(returnedBottles);
-          });
+            });
+          }else{
+            proceedWithCompletion(selectedOrder.bottleReturned);
+          }
+        } else {
+          event.source.checked = false;
+          return;
         }
-      });
+      } )
+   
     }
   }
   

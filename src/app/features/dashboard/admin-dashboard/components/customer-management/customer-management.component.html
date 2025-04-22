@@ -3,7 +3,7 @@
         <button mat-raised-button  
             [ngStyle]="{'font-size': isMobile ? '.85rem' : '1rem'}" 
             (click)="showAllCustomers = true; showDailyCustomers = false; showMonthlyCustomers = false">
-            All Customer
+            Non-Monthly Customer
         </button>
 
         <button mat-raised-button  
@@ -12,14 +12,14 @@
         Monthly Customer
         </button>
 
-        <button mat-raised-button 
+        <!-- <button mat-raised-button 
             [ngStyle]="{'font-size': isMobile ? '.85rem' : '1rem'}" 
             (click)="showAllCustomers = false; showDailyCustomers = true; showMonthlyCustomers = false">
             Daily Customer
-        </button>
+        </button> -->
     </div>
     <mat-card *ngIf="showAllCustomers" class="orders-list">
-        <mat-card-title class="text-center">All Customers</mat-card-title>
+        <mat-card-title class="text-center">Non-Monthly Customers</mat-card-title>
       
         <mat-accordion 
         style="display: flex;
@@ -117,8 +117,19 @@
         >
           <mat-expansion-panel *ngFor="let customer of monthlyCustomers">
             <mat-expansion-panel-header>
-              <mat-panel-title>{{ customer.id }}</mat-panel-title>
-            </mat-expansion-panel-header>
+              <mat-panel-title style="display: flex; justify-content: space-between; align-items: center;">
+                <ng-container *ngIf="!customer.isEditing; else editField">
+                  {{ customer.id }}
+                  <mat-icon (click)="enableEdit(customer)">edit</mat-icon>
+                </ng-container>
+              
+                <ng-template #editField>
+                  <input [(ngModel)]="customer.newId" style="width: 60%;" />
+                  <mat-icon (click)="saveCustomerId(customer)">check</mat-icon>
+                  <mat-icon (click)="cancelEdit(customer)">close</mat-icon>
+                </ng-template>
+              </mat-panel-title>
+                          </mat-expansion-panel-header>
             <div class="summary-row">
               <div  [ngStyle]="{
                   color: customer.balanceDue === 0 ? 'black' : 
