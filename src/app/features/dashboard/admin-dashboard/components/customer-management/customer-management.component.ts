@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { EditCustomerModelComponent } from './edit-customer-model/edit-customer-model.component';
 import { UserService } from '../../../../../core/services/user.service';
 import jsPDF from 'jspdf';
+import Swal from 'sweetalert2';
 
 
 
@@ -85,6 +86,71 @@ cancelEdit(customer: any) {
   customer.isEditing = false;
   customer.newId = '';
 }
+
+settleAmount(customer: any) {
+console.log('Settling amount for customer:', customer);
+Swal.fire({
+  title: 'Settle Amount',
+  text: `Settle amount for customer: ${customer.id}`,
+  input: 'text',
+  confirmButtonText: 'Settle',
+  showCancelButton: true,
+  cancelButtonText: 'Cancel', 
+}).then((result) => {
+  if (result.isConfirmed) {
+    // if (!isNaN(amount)) {
+      // console.log('Settling amount:', amount);
+      this.orderService.settleCustomerAmount(customer).then(() => {
+        Swal.fire(
+          'Settled!',
+          `Amount settled for customer: ${customer.id}`,
+          'success'
+        );
+        // Optionally, refresh the customer list or update the view
+      }).catch((error: any) => {
+        Swal.fire(
+          'Error!',
+          'There was a problem settling the amount.',
+          'error'
+        );
+        console.error('Error settling amount:', error);
+      });
+    } 
+});
+}
+
+
+deleteCustomer(customer: any) {
+  Swal.fire({
+    title: 'Are you sure?',
+    text: `Do you want to delete customer: ${customer.id}?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Yes, delete it!'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      console.log('Deleting customer:', customer);
+      this.orderService.deleteCustomer(customer.id).then(() => {
+        Swal.fire(
+          'Deleted!',
+          'Customer has been deleted.',
+          'success'
+        );
+        // Optionally, refresh the customer list or remove from the view
+      }).catch((error: any) => {
+        Swal.fire(
+          'Error!',
+          'There was a problem deleting the customer.',
+          'error'
+        );
+        console.error('Error deleting customer:', error);
+      });
+    }
+  });
+}
+
 
 saveCustomerId(customer: any) {
   console.log('Saving customer ID:', customer);

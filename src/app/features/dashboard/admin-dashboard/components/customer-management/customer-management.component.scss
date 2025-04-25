@@ -11,6 +11,11 @@
 
 }
 
+.action-icons{
+  display: flex;
+  gap: 2rem;
+}
+
 .no-orders-msg {
     text-align: center;
     color: gray;

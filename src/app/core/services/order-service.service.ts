@@ -108,6 +108,19 @@ export class OrderServiceService implements OnInit {
     });
   }
 
+async settleCustomerAmount(customer:any){
+    const user = await this.userService.getCurrentUser();
+    if (!user?.uid) return;
+    this.userID = user.uid;
+    const customerRef = doc(this.firestore, `users/${this.userID}/customers/${customer}`);
+    return updateDoc(customerRef, {
+      totalPaid: 0,
+      balanceDue: 0,
+      returned: 0,
+      toReturn: 0
+    });
+  }
+
   // async markDelivered(
   //   bottleReturned:any,
   //   selectedOrder:any,
@@ -627,90 +640,97 @@ async updateCustomerDetails(customerId:any, customerName:any, phoneNumber:any, t
 
   }
 
-  async deleteOrder(orderId: any, address: any, order: any) {
+  async deleteCustomer(customerId: any) {
     const user = await this.userService.getCurrentUser();
     if (!user?.uid) return;
-  
-    const orderRef = doc(this.firestore, `users/${user.uid}/all-orders/${orderId}`);
-    await deleteDoc(orderRef);
-  
-    const customerRef = doc(this.firestore, `users/${user.uid}/customers/${address}`);
+
+    const customerRef = doc(this.firestore, `users/${user.uid}/customers/${customerId}`);
     const customerSnap = await getDoc(customerRef);
-  
-    if (customerSnap.exists()) {
-      const customerData = customerSnap.data();
-      const customerOrders = customerData['orders'] || [];
-  
-      console.log("Before deletion, orders array:", customerOrders);
-  
-      // Check if each item is an object with an `id` field
-      const updatedOrders = customerOrders.filter((orderObj: any) => {
-        if (typeof orderObj === 'string') {
-          return orderObj !== orderId;
-        } else if (orderObj?.id) {
-          return orderObj.id !== orderId;
-        }
-        return true; // if structure doesn't match, keep the entry to avoid accidental deletion
-      });
-  
-      console.log("After deletion, updated orders array:", updatedOrders);
-  
-      await updateDoc(customerRef, {
-        orders: updatedOrders,
-        totalBottles: (customerData['totalBottles'] || 0) - (order?.noOfBottles || 0),
-        toReturn: (customerData['toReturn'] || 0) - ((order?.noOfBottles || 0) - (order?.bottleReturned || 0)),
-        returned: (customerData['returned'] || 0) - (order?.bottleReturned || 0),
-        totalPaid: (customerData['totalPaid'] || 0) - (order?.payment?.amountPaid || 0),
-        balanceDue: (customerData['balanceDue'] || 0) - (order?.payment?.paymentRemaining || 0),
-      });
+
+    if (!customerSnap.exists()) {
+      console.log(`Customer with ID '${customerId}' does not exist.`);
+      return;
+    }
+
+    const customerData = customerSnap.data();
+    const orders = customerData?.['orders'] || [];
+
+    // Delete all orders associated with the customer
+    const batch = writeBatch(this.firestore);
+    const ordersRef = collection(this.firestore, `users/${user.uid}/all-orders`);
+
+    for (const orderId of orders) {
+      const orderRef = doc(ordersRef, orderId);
+      batch.delete(orderRef);
+    }
+
+    // Delete the customer document
+    batch.delete(customerRef);
+
+    try {
+      await batch.commit();
+      console.log(`Customer '${customerId}' and their associated orders have been deleted.`);
+    } catch (error) {
+      console.error("Error deleting customer and orders:", error);
     }
   }
-  
 
-  // async updateCustomerId(oldId: string, newId: string) {
-  //   const user = await this.userService.getCurrentUser();
-  //   if (!user?.uid) return;
+async deleteOrder(orderId: any, address: any, order: any) {
+      const user = await this.userService.getCurrentUser();
+      if (!user?.uid) return;
+    
+      const orderRef = doc(this.firestore, `users/${user.uid}/all-orders/${orderId}`);
+      await deleteDoc(orderRef);
+    
+      const customerRef = doc(this.firestore, `users/${user.uid}/customers/${address}`);
+      const customerSnap = await getDoc(customerRef);
+    
+      if (customerSnap.exists()){
+        const customerData = customerSnap.data();
+        const customerOrders = customerData['orders'] || [];
+    
+        console.log("Before deletion, orders array:", customerOrders);
+    
+        const updatedOrders = customerOrders.filter((orderObj: any) => {
+          if (typeof orderObj === 'string') {
+            return orderObj !== orderId;
+          } else if (orderObj?.id) {
+            return orderObj.id !== orderId;
+          }
+          return true; 
+        });
+    
+        console.log("After deletion, updated orders array:", updatedOrders);
+    
+        const prevTotalBottles = customerData['totalBottles'] || 0;
+        const prevToReturn = customerData['toReturn'] || 0;
+        const prevReturned = customerData['returned'] || 0;
+        const prevTotalPaid = customerData['totalPaid'] || 0;
+        const prevBalanceDue = customerData['balanceDue'] || 0;
+        
+        const orderBottles = order?.noOfBottles || 0;
+        const bottlesReturned = order?.bottleReturned || 0;
+        const amountPaid = order?.payment?.amountPaid || 0;
+        const paymentRemaining = order?.payment?.paymentRemaining || 0;
+        
+        await updateDoc(customerRef, {
+          orders: updatedOrders,
+          totalBottles: Math.max(0, prevTotalBottles - orderBottles),
+          toReturn: Math.max(0, prevToReturn - (orderBottles - bottlesReturned)),
+          returned: Math.max(0, prevReturned - bottlesReturned),
+          totalPaid: Math.max(0, prevTotalPaid - amountPaid),
+          balanceDue: Math.max(0, prevBalanceDue - paymentRemaining),
+        });
+        console.log("Adjusting totals:", {
+          subtractingBottles: orderBottles,
+          subtractingToReturn: orderBottles - bottlesReturned,
+          subtractingReturned: bottlesReturned,
+          subtractingPaid: amountPaid,
+          subtractingDue: paymentRemaining,
+        });
+      }
+  }
   
-  //   const oldCustomerRef = doc(this.firestore, `users/${user.uid}/customers/${oldId}`);
-  //   const newCustomerRef = doc(this.firestore, `users/${user.uid}/customers/${newId}`);
-  
-  //   const oldSnap = await getDoc(oldCustomerRef);
-  //   const newSnap = await getDoc(newCustomerRef);
-  
-  //   // 🚫 If old data doesn't exist, stop here
-  //   if (!oldSnap.exists()) {
-  //     console.error(`Customer with ID '${oldId}' not found.`);
-  //     return;
-  //   }
-  
-  //   const oldData = oldSnap.data();
-  //   const newData = newSnap.exists() ? newSnap.data() : null;
-  
-  //   // 🧠 Build merged data
-  //   const mergedData: any = {
-  //     ...newData, // Base: existing new customer (if any)
-  //     ...oldData, // Overwrite with old data where needed
-  //     orders: [
-  //       ...(Array.isArray(newData?.['orders']) ? newData['orders'] : []),
-  //       ...(Array.isArray(oldData?.['orders']) ? oldData['orders'] : [])
-  //     ],
-  //     returned: Math.max(newData?.['returned'] || 0, oldData?.['returned'] || 0), // Or sum them if that’s preferred
-  //     balanceDue: Math.max(newData?.['balanceDue'] || 0, oldData?.['balanceDue'] || 0), // Optional: sum or max
-  //     phoneNumber: oldData?.['phoneNumber'] || newData?.['phoneNumber'] || 0,
-  //     name: oldData?.['name'] || newData?.['name'] || '',
-  //     typeOfCustomer: oldData?.['typeOfCustomer'] || newData?.['typeOfCustomer'] || '',
-  //   };
-  
-  //   try {
-  //     await setDoc(newCustomerRef, mergedData, { merge: true }); // 🛠 Merge or create new doc
-  //     await deleteDoc(oldCustomerRef); // 🧹 Clean up old doc
-  
-  //     console.log(`Customer ID updated from '${oldId}' to '${newId}' successfully.`);
-  //   } catch (error) {
-  //     console.error("Error during customer ID update:", error);
-  //   }
-  // }
-
   async updateCustomerId(oldId: string, newId: string) {
     const user = await this.userService.getCurrentUser();
     if (!user?.uid) return;

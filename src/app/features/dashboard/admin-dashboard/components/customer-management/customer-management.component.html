@@ -1,223 +1,190 @@
 <div class="orders-container">
-    <div class="btn-wrapper">
-        <button mat-raised-button  
-            [ngStyle]="{'font-size': isMobile ? '.85rem' : '1rem'}" 
-            (click)="showAllCustomers = true; showDailyCustomers = false; showMonthlyCustomers = false">
-            Non-Monthly Customer
-        </button>
+  <div class="btn-wrapper">
+    <button mat-raised-button [ngStyle]="{'font-size': isMobile ? '.85rem' : '1rem'}"
+      (click)="showAllCustomers = true; showDailyCustomers = false; showMonthlyCustomers = false">
+      Non-Monthly Customer
+    </button>
 
-        <button mat-raised-button  
-        [ngStyle]="{'font-size': isMobile ? '.85rem' : '1rem'}" 
-        (click)="showAllCustomers = false; showDailyCustomers = false; showMonthlyCustomers = true">
-        Monthly Customer
-        </button>
+    <button mat-raised-button [ngStyle]="{'font-size': isMobile ? '.85rem' : '1rem'}"
+      (click)="showAllCustomers = false; showDailyCustomers = false; showMonthlyCustomers = true">
+      Monthly Customer
+    </button>
 
-        <!-- <button mat-raised-button 
+    <!-- <button mat-raised-button 
             [ngStyle]="{'font-size': isMobile ? '.85rem' : '1rem'}" 
             (click)="showAllCustomers = false; showDailyCustomers = true; showMonthlyCustomers = false">
             Daily Customer
         </button> -->
-    </div>
-    <mat-card *ngIf="showAllCustomers" class="orders-list">
-        <mat-card-title class="text-center">Non-Monthly Customers</mat-card-title>
-      
-        <mat-accordion 
-        style="display: flex;
+  </div>
+  <mat-card *ngIf="showAllCustomers" class="orders-list">
+    <mat-card-title class="text-center">Non-Monthly Customers</mat-card-title>
+
+    <mat-accordion style="display: flex;
         flex-direction: column;
-        gap: 10px;"
-        *ngIf="allCustomers.length > 0; else noOrders"
-        multi>
-          <mat-expansion-panel *ngFor="let customer of allCustomers">
-            <mat-expansion-panel-header>
-              <mat-panel-title>
-                {{ customer.id }}
-              </mat-panel-title>
-              <!-- <mat-panel-description>
-              </mat-panel-description> -->
-            </mat-expansion-panel-header>
-      
-            <!-- Summary Info -->
-            <div class="summary-row">
-                <div  [ngStyle]="{
-                    color: customer.balanceDue === 0 ? 'black' : 
-                           (customer.balanceDue < 0 ? 'green' : 'red')
-                  }"><strong>Balance Due:</strong> ₹{{ customer.balanceDue }}</div>
-              <div><strong>Total Bottles:</strong> {{  customer.totalBottles }} Bottles  </div>
-              <div><strong>Bottles Returned:</strong> {{ customer.returned }}</div>
-              <div><strong>Bottles To Return:</strong> {{ customer.toReturn }}</div>
-                <div><strong>Total Paid:</strong> ₹{{ customer.totalPaid }}</div>
-            </div>
-      
-            <!-- Order List -->
-            <div class="order-list">
-              <div *ngFor="let order of customer.orders" class="order-card">
-                <div class="order-header">
-                  <span class="status-chip" [ngClass]="order.urgencyFlag">{{ order.urgencyFlag }}</span>
-                  <span class="order-date"><strong>
-                    {{ order.timestamp?.seconds * 1000 | date:'short' }}
-                  </strong>
-                </span>
-                </div>
-                <div class="order-body">
-                    <div *ngIf="order.status !== 'pending'"><strong>Due:</strong> ₹ {{ order.payment?.paymentRemaining }}</div>
-                    <div *ngIf="order.status !== 'pending'"><strong>Bottles Returned:</strong> {{ order.bottleReturned }}</div>
-                  <div><strong>Bottles Ordered:</strong> {{ order.noOfBottles }}</div>
-                  <div><strong>Bottles Rate:</strong>₹{{ order.payment?.perBottlePrice }}</div>
-                    <div *ngIf="order.status !== 'pending'"><strong>Payment:</strong> ₹{{ order.payment.amountPaid }} / ₹{{ order.payment.totalToPaid }} ({{ order.payment.mode }})</div>
-                  <div><strong>Status:</strong> {{ order.status }}</div>
-                  <div *ngIf="order.status !== 'pending'"><strong>Payment Date:</strong>  {{ order.payment.dateOfPayment.seconds * 1000 | date:'MMM d, y, h:mm a' }}</div>
-                  <!-- <div><strong>Order Date:</strong> {{ order.timestamp.seconds * 1000 | date:'MMM d, y, h:mm a' }}</div> -->
-                  <div *ngIf="order.status !== 'pending'"><strong>Delivered Date:</strong> {{ order.deliveryDate?.seconds * 1000 | date:'MMM d, y, h:mm a' }}</div>
-                </div>
+        gap: 10px;" *ngIf="allCustomers.length > 0; else noOrders" multi>
+      <mat-expansion-panel *ngFor="let customer of allCustomers">
+        <mat-expansion-panel-header>
+          <mat-panel-title style="display: flex; justify-content: space-between; align-items: center;">
+            <ng-container *ngIf="!customer.isEditing; else editField1">
+              {{ customer.id }}
+              <div class="action-icons">
+                <mat-icon (click)="enableEdit(customer)">edit</mat-icon>
+                <mat-icon style="color: red;" (click)="deleteCustomer(customer)">delete</mat-icon>
               </div>
+            </ng-container>
+
+            <ng-template #editField1>
+              <input [(ngModel)]="customer.newId" style="width: 60%;" />
+              <mat-icon (click)="saveCustomerId(customer)">check</mat-icon>
+              <mat-icon (click)="cancelEdit(customer)">close</mat-icon>
+            </ng-template>
+          </mat-panel-title>
+          <!-- <mat-panel-description>
+              </mat-panel-description> -->
+        </mat-expansion-panel-header>
+
+        <!-- Summary Info -->
+        <div class="summary-row">
+          <div [ngStyle]="{
+                    color: customer.balanceDue === 0 ? 'black' : 
+                    (customer.balanceDue < 0 ? 'green' : 'red')}"
+                >
+          <strong>Balance Due:</strong> ₹{{ customer.balanceDue }}</div>
+          <div><strong>Total Bottles:</strong> {{ customer.totalBottles }} Bottles </div>
+          <div><strong>Bottles Returned:</strong> {{ customer.returned }}</div>
+          <div><strong>Bottles To Return:</strong> {{ customer.toReturn }}</div>
+          <div><strong>Total Paid:</strong> ₹{{ customer.totalPaid }}</div>
+          <div class="action-icons">
+            <button mat-raised-button color="primary" (click)="settleAmount(customer)">
+              Settled Amount
+            </button>
+          </div>
+        </div>
+
+        <!-- Order List -->
+        <div class="order-list">
+          <div *ngFor="let order of customer.orders" class="order-card">
+            <div class="order-header">
+              <span class="status-chip" [ngClass]="order.urgencyFlag">{{ order.urgencyFlag }}</span>
+              <span class="order-date"><strong>
+                  {{ order.timestamp?.seconds * 1000 | date:'short' }}
+                </strong>
+              </span>
             </div>
-      
-            <div class="text-center" style="margin-top: 10px;">
-              <button mat-stroked-button color="primary" (click)="openCustomerDialog(customer.id)">
-                Edit Customer
-              </button>
+            <div class="order-body">
+              <div *ngIf="order.status !== 'pending'"><strong>Due:</strong> ₹ {{ order.payment?.paymentRemaining }}
+              </div>
+              <div *ngIf="order.status !== 'pending'"><strong>Bottles Returned:</strong> {{ order.bottleReturned }}
+              </div>
+              <div><strong>Bottles Ordered:</strong> {{ order.noOfBottles }}</div>
+              <div><strong>Bottles Rate:</strong>₹{{ order.payment?.perBottlePrice }}</div>
+              <div *ngIf="order.status !== 'pending'"><strong>Payment:</strong> ₹{{ order.payment.amountPaid }} / ₹{{
+                order.payment.totalToPaid }} ({{ order.payment.mode }})</div>
+              <div><strong>Status:</strong> {{ order.status }}</div>
+              <div *ngIf="order.status !== 'pending'"><strong>Payment Date:</strong> {{
+                order.payment.dateOfPayment.seconds * 1000 | date:'MMM d, y, h:mm a' }}</div>
+              <!-- <div><strong>Order Date:</strong> {{ order.timestamp.seconds * 1000 | date:'MMM d, y, h:mm a' }}</div> -->
+              <div *ngIf="order.status !== 'pending'"><strong>Delivered Date:</strong> {{ order.deliveryDate?.seconds *
+                1000 | date:'MMM d, y, h:mm a' }}</div>
             </div>
-          </mat-expansion-panel>
-        </mat-accordion>
-      
-        <ng-template #noOrders>
-          <div class="no-orders text-center">No Customers Found</div>
-        </ng-template>
-      </mat-card>
-      
-    <!-- <mat-card *ngIf="showMonthlyCustomers" class="orders-list">
-        <mat-card-title class="text-center">Monthly Customers</mat-card-title>
-        
-        <mat-accordion 
-        style="display: flex;
-        flex-direction: column;
-        gap: 10px;" 
-        *ngIf="monthlyCustomers.length > 0;else noMonthlyCustomers" 
-        multi>
-        <mat-expansion-panel *ngFor="let customer of monthlyCustomers">
-            <mat-expansion-panel-header>
-                <mat-panel-title>
-                    {{ customer.id }}
-                </mat-panel-title>
-            </mat-expansion-panel-header>
-        </mat-expansion-panel>
-        </mat-accordion>
-        <ng-template #noMonthlyCustomers>
-            <div class="no-orders text-center">No Customers Found</div>
-          </ng-template>
-    </mat-card> -->
-  
-    <mat-card *ngIf="showMonthlyCustomers" class="orders-list">
-        <mat-card-title class="text-center">Monthly Customers</mat-card-title>
-      
-        <mat-accordion
-          style="display: flex; flex-direction: column; gap: 10px;"
-          *ngIf="monthlyCustomers.length > 0; else noMonthlyCustomers"
-          multi
-        >
-          <mat-expansion-panel *ngFor="let customer of monthlyCustomers">
-            <mat-expansion-panel-header>
-              <mat-panel-title style="display: flex; justify-content: space-between; align-items: center;">
-                <ng-container *ngIf="!customer.isEditing; else editField">
-                  {{ customer.id }}
-                  <mat-icon (click)="enableEdit(customer)">edit</mat-icon>
-                </ng-container>
-              
-                <ng-template #editField>
-                  <input [(ngModel)]="customer.newId" style="width: 60%;" />
-                  <mat-icon (click)="saveCustomerId(customer)">check</mat-icon>
-                  <mat-icon (click)="cancelEdit(customer)">close</mat-icon>
-                </ng-template>
-              </mat-panel-title>
-                          </mat-expansion-panel-header>
-            <div class="summary-row">
-              <div  [ngStyle]="{
+          </div>
+        </div>
+
+        <div class="text-center" style="margin-top: 10px;">
+          <button mat-stroked-button color="primary" (click)="openCustomerDialog(customer.id)">
+            Edit Customer
+          </button>
+        </div>
+      </mat-expansion-panel>
+    </mat-accordion>
+
+    <ng-template #noOrders>
+      <div class="no-orders text-center">No Customers Found</div>
+    </ng-template>
+  </mat-card>
+
+
+  <mat-card *ngIf="showMonthlyCustomers" class="orders-list">
+    <mat-card-title class="text-center">Monthly Customers</mat-card-title>
+
+    <mat-accordion style="display: flex; flex-direction: column; gap: 10px;"
+      *ngIf="monthlyCustomers.length > 0; else noMonthlyCustomers" multi>
+      <mat-expansion-panel *ngFor="let customer of monthlyCustomers">
+        <mat-expansion-panel-header>
+          <mat-panel-title style="display: flex; justify-content: space-between; align-items: center;">
+            <ng-container *ngIf="!customer.isEditing; else editField">
+              {{ customer.id }}
+              <div class="action-icons">
+                <mat-icon (click)="enableEdit(customer)">edit</mat-icon>
+                <mat-icon style="color: red;" (click)="deleteCustomer(customer)">delete</mat-icon>
+              </div>
+            </ng-container>
+
+            <ng-template #editField>
+              <input [(ngModel)]="customer.newId" style="width: 60%;" />
+              <mat-icon (click)="saveCustomerId(customer)">check</mat-icon>
+              <mat-icon (click)="cancelEdit(customer)">close</mat-icon>
+            </ng-template>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="summary-row">
+          <div [ngStyle]="{
                   color: customer.balanceDue === 0 ? 'black' : 
                          (customer.balanceDue < 0 ? 'green' : 'red')
                 }"><strong>Balance Due:</strong> ₹{{ customer.balanceDue }}</div>
-            <div><strong>Total Bottles:</strong> {{  customer.totalBottles }} Bottles  </div>
-            <div><strong>Bottles Returned:</strong> {{ customer.returned }}</div>
-            <div><strong>Bottles To Return:</strong> {{ customer.toReturn }}</div>
-              <div><strong>Total Paid:</strong> ₹{{ customer.totalPaid }}</div>
-          </div>
+          <div><strong>Total Bottles:</strong> {{ customer.totalBottles }} Bottles </div>
+          <div><strong>Bottles Returned:</strong> {{ customer.returned }}</div>
+          <div><strong>Bottles To Return:</strong> {{ customer.toReturn }}</div>
+          <div><strong>Total Paid:</strong> ₹{{ customer.totalPaid }}</div>
+        </div>
+        <div class="action-icons">
           <button mat-raised-button color="primary" (click)="generateInvoice(customer)">
             Generate Invoice
           </button>
-            <!-- Compact Calendar Card -->
-            <mat-card class="calendar-card">
-              <mat-calendar
-                class="mini-calendar"
-                [dateClass]="getHighlightClass.bind(this, customer)"
-                (selectedChange)="onDateSelected($event, customer)"
-              >
-              </mat-calendar>
-            </mat-card>
-      
-            <!-- Selected Order Details -->
-         <div *ngIf="selectedOrders[customer.id] && selectedOrders[customer.id].length > 0" class="order-details">
-  <h4 class="text-center">Orders on {{ selectedDate[customer.id] | date:'fullDate' }}</h4>
+          <button mat-raised-button color="primary" (click)="settleAmount(customer)" >
+            Settled Amount
+          </button>
+        </div>
+        <!-- Compact Calendar Card -->
+        <mat-card class="calendar-card">
+          <mat-calendar class="mini-calendar" [dateClass]="getHighlightClass.bind(this, customer)"
+            (selectedChange)="onDateSelected($event, customer)">
+          </mat-calendar>
+        </mat-card>
 
-  <div *ngFor="let order of selectedOrders[customer.id]" class="order-box">
-    <p><strong>Order Date:</strong> {{ getDate(order?.timestamp) }}</p>
-    <p><strong>Order Time:</strong> {{ getTime(order?.timestamp) }}</p>
-    <p><strong>Bottles Ordered:</strong> {{ order?.noOfBottles }}</p>
-    <p><strong>Status:</strong> {{ order?.status }}</p>
-    <p><strong>Bottles Returned:</strong> {{ order?.bottleReturned }}</p>
+        <!-- Selected Order Details -->
+        <div *ngIf="selectedOrders[customer.id] && selectedOrders[customer.id].length > 0" class="order-details">
+          <h4 class="text-center">Orders on {{ selectedDate[customer.id] | date:'fullDate' }}</h4>
 
-    <div *ngIf="order?.payment">
-      <p><strong>Payment Done:</strong> {{ order.payment.done }}</p>
-      <p><strong>Amount Paid:</strong> ₹{{ order.payment.amountPaid }}</p>
-      <p><strong>Total To Be Paid:</strong> ₹{{ order.payment.totalToPaid }}</p>
-      <p><strong>Remaining Payment:</strong> ₹{{ order.payment.paymentRemaining }}</p>
-      <p><strong>Payment Mode:</strong> {{ order.payment.mode }}</p>
-      <p><strong>Payment Date:</strong> {{ getDate(order.payment.dateOfPayment) }}</p>
-      <p><strong>Payment Time:</strong> {{ getTime(order.payment.dateOfPayment) }}</p>
-    </div>
-  </div>
-</div>
+          <div *ngFor="let order of selectedOrders[customer.id]" class="order-box">
+            <p><strong>Order Date:</strong> {{ getDate(order?.timestamp) }}</p>
+            <p><strong>Order Time:</strong> {{ getTime(order?.timestamp) }}</p>
+            <p><strong>Bottles Ordered:</strong> {{ order?.noOfBottles }}</p>
+            <p><strong>Status:</strong> {{ order?.status }}</p>
+            <p><strong>Bottles Returned:</strong> {{ order?.bottleReturned }}</p>
 
-<div id="invoice-section"></div>
+            <div *ngIf="order?.payment">
+              <p><strong>Payment Done:</strong> {{ order.payment.done }}</p>
+              <p><strong>Amount Paid:</strong> ₹{{ order.payment.amountPaid }}</p>
+              <p><strong>Total To Be Paid:</strong> ₹{{ order.payment.totalToPaid }}</p>
+              <p><strong>Remaining Payment:</strong> ₹{{ order.payment.paymentRemaining }}</p>
+              <p><strong>Payment Mode:</strong> {{ order.payment.mode }}</p>
+              <p><strong>Payment Date:</strong> {{ getDate(order.payment.dateOfPayment) }}</p>
+              <p><strong>Payment Time:</strong> {{ getTime(order.payment.dateOfPayment) }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="invoice-section"></div>
 
 
-          </mat-expansion-panel>
-        </mat-accordion>
-      
-        <ng-template #noMonthlyCustomers>
-          <div class="no-orders text-center">No Customers Found</div>
-        </ng-template>
-      </mat-card>
-      
-   
-     <!-- Invoice Template (Hidden but printable) -->
-<!-- <div #invoiceContainer style="display: none;">
-  <h2>Monthly Invoice</h2>
-  <p><strong>Customer ID:</strong> {{ selectedCustomer?.id }}</p>
-  <p><strong>Month:</strong> {{ selectedInvoiceMonth }}</p>
+      </mat-expansion-panel>
+    </mat-accordion>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>Bottles</th>
-        <th>Paid</th>
-        <th>Due</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let order of selectedCustomerOrders">
-        <td>{{ getDate(order.timestamp) }}</td>
-        <td>{{ order.noOfBottles }}</td>
-        <td>₹{{ order.payment?.amountPaid }}</td>
-        <td>₹{{ order.payment?.paymentRemaining }}</td>
-      </tr>
-    </tbody>
-  </table>
+    <ng-template #noMonthlyCustomers>
+      <div class="no-orders text-center">No Customers Found</div>
+    </ng-template>
+  </mat-card>
 
-  <p><strong>Total Bottles:</strong> {{ invoiceTotals.totalBottles }}</p>
-  <p><strong>Total Paid:</strong> ₹{{ invoiceTotals.totalPaid }}</p>
-  <p><strong>Balance:</strong> ₹{{ invoiceTotals.balance }}</p>
-</div> -->
 
-      
-    
 </div>
