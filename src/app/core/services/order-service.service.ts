@@ -113,12 +113,12 @@ async settleCustomerAmount(customer:any){
     if (!user?.uid) return;
     this.userID = user.uid;
     const customerRef = doc(this.firestore, `users/${this.userID}/customers/${customer}`);
-    return updateDoc(customerRef, {
-      totalPaid: 0,
-      balanceDue: 0,
-      returned: 0,
-      toReturn: 0
-    });
+    // return updateDoc(customerRef, {
+    //   totalPaid: 0,
+    //   balanceDue: 0,
+    //   returned: 0,
+    //   toReturn: 0
+    // });
   }
 
   // async markDelivered(
