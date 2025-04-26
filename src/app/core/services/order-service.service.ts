@@ -108,18 +108,61 @@ export class OrderServiceService implements OnInit {
     });
   }
 
-async settleCustomerAmount(customer:any){
+  async settleCustomerAmount(customer: any) {
     const user = await this.userService.getCurrentUser();
     if (!user?.uid) return;
-    this.userID = user.uid;
-    const customerRef = doc(this.firestore, `users/${this.userID}/customers/${customer}`);
-    // return updateDoc(customerRef, {
-    //   totalPaid: 0,
-    //   balanceDue: 0,
-    //   returned: 0,
-    //   toReturn: 0
-    // });
+  
+    const customerRef = doc(this.firestore, `users/${user.uid}/customers/${customer.id}`);
+    const customerSnap = await getDoc(customerRef);
+  
+    if (!customerSnap.exists()) {
+      console.error('Customer not found!');
+      return;
+    }
+  
+    const customerData = customerSnap.data();
+    const orders = customerData['orders'] || [];
+  
+    let totalPaid = customerData['totalPaid'] || 0;
+    let balanceDue = customerData['balanceDue'] || 0;
+  
+    const updatedOrders = await Promise.all(orders.map(async (order: any) => {
+      if (typeof order === 'string') {
+        const orderDocRef = doc(this.firestore, `users/${user.uid}/all-orders/${order}`);
+        const orderDocSnap = await getDoc(orderDocRef);
+        if (orderDocSnap.exists()) {
+          order = orderDocSnap.data();
+          order.id = orderDocSnap.id;
+        } else {
+          return null;
+        }
+      }
+  
+      const orderRef = doc(this.firestore, `users/${user.uid}/all-orders/${order.id}`);
+  
+      const amount = order.payment?.totalToPaid || 0;
+  
+      await updateDoc(orderRef, {
+        'payment.amountPaid': amount,
+        'payment.paymentRemaining': 0,
+        'payment.done': 'Paid'
+      });
+  
+      totalPaid += amount;
+      balanceDue -= amount;
+  
+      return order.id;
+    }));
+  
+    await updateDoc(customerRef, {
+      totalPaid,
+      balanceDue: balanceDue < 0 ? 0 : balanceDue,
+      orders: updatedOrders.filter(Boolean)  // remove nulls
+    });
+  
+    console.log('Customer settlement completed.');
   }
+  
 
   // async markDelivered(
   //   bottleReturned:any,

@@ -92,8 +92,7 @@ console.log('Settling amount for customer:', customer);
 Swal.fire({
   title: 'Settle Amount',
   text: `Settle amount for customer: ${customer.id}`,
-  input: 'text',
-  confirmButtonText: 'Settle',
+  confirmButtonText: 'Settle All',
   showCancelButton: true,
   cancelButtonText: 'Cancel', 
 }).then((result) => {

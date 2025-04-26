@@ -55,7 +55,7 @@
           <div><strong>Bottles To Return:</strong> {{ customer.toReturn }}</div>
           <div><strong>Total Paid:</strong> ₹{{ customer.totalPaid }}</div>
           <div class="action-icons">
-            <button mat-raised-button color="primary" (click)="settleAmount(customer)">
+            <button [disabled]="customer.balanceDue === 0" mat-raised-button color="primary" (click)="settleAmount(customer)">
               Settled Amount
             </button>
           </div>
