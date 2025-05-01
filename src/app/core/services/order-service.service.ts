@@ -299,8 +299,7 @@ export class OrderServiceService implements OnInit {
     const user = await this.userService.getCurrentUser();
     if (!user?.uid) return;
   
-    // const ordersRef = collection(this.firestore, `users/${user.uid}/all-orders`);
-    const ordersRef = collection(this.firestore, `users/${user.uid}/customers`);
+    const ordersRef = collection(this.firestore, `users/${user.uid}/all-orders`);
     const snapshot = await getDocs(ordersRef);
   
     const deletePromises = snapshot.docs.map(docSnap =>
@@ -309,6 +308,23 @@ export class OrderServiceService implements OnInit {
   
     await Promise.all(deletePromises);
     console.log('All orders deleted successfully.');
+  }
+
+
+  async deleteAllCustomers(userId: any): Promise<void> {
+    const customersRef = collection(this.firestore, `users/${userId}/customers`);
+    const snapshot = await getDocs(customersRef);
+  
+    const deletePromises = snapshot.docs.map((document) =>
+      deleteDoc(doc(this.firestore, `users/${userId}/customers/${document.id}`))
+    );
+  
+    try {
+      await Promise.all(deletePromises);
+      console.log('All customers deleted successfully.');
+    } catch (error) {
+      console.error('Error deleting customer documents:', error);
+    }
   }
 
   // async markDelivered(

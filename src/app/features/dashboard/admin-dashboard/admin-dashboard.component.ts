@@ -59,6 +59,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
       }
     })
     // this.orderService.clearAllOrders();
+    // this.orderService.deleteAllCustomers(user?.uid);
   }
 
   openDialog(templateRef: TemplateRef<any>) {
